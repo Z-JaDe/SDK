@@ -7,9 +7,8 @@
 //
 
 import Foundation
-import JDKit
 
-open class ShareModel: BaseEntityModel {
+open class ShareModel {
     open var title:String = ""
     open var intro:String = ""
     open var logo:String = ""

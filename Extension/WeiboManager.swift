@@ -7,13 +7,16 @@
 //
 
 import UIKit
-import JDKit
-
+import Alert
+import SwiftyUserDefaults
+import WeiboSDK
+import Basic
 open class WeiboManager: ThirdManager {
     open static let shared = WeiboManager()
     private override init() {}
     
     func canUseWeiboShare() -> Bool {
+        
         return WeiboSDK.isCanShareInWeiboAPP()
     }
     func canUseWeiboLogin() -> Bool {
@@ -58,29 +61,26 @@ open class WeiboManager: ThirdManager {
         return request
     }
     // MARK: -
-    open override func requestLogin(needRefreshToken:Bool = true,onlyRequest:Bool = false) {
+    override func requestLogin() {
         self.weiboRefreshToken {
-            LoginModel.requestToLogin(loginType: .weiboLogin, onlyRequest: onlyRequest)
+            super.requestLogin()
         }
-    }
-    fileprivate func requestToBinding() {
-        LoginModel.requestToBindingWeibo()
     }
 }
 extension WeiboManager {
     fileprivate func weiboRefreshToken(_ callback:@escaping ()->()) {
         guard let expirationDate = Defaults[.wb_expirationDate] else {
-            Alert.showChoice(title: "微博登录", "微博登录出现问题，请重新获取授权", {
+            Alert.showConfirm(title: "微博登录", "微博登录出现问题，请重新获取授权", { (action) in
                 self.jumpAndAuth()
             })
             return
         }
         guard expirationDate > Date(timeIntervalSinceNow: -3600) else {
-            let hud = HUD.showMessage("获取微博登录参数中")
+            let hud = HUDManager.showMessage("获取微博登录参数中")
             _ = WBHttpRequest(forRenewAccessTokenWithRefreshToken: Defaults[.wb_refresh_token], queue: nil, withCompletionHandler: { (request, result, error) in
                 hud.hide()
                 guard error == nil else {
-                    Alert.showChoice(title: "微博登录", "微博登录失效，请重新获取授权", {
+                    Alert.showConfirm(title: "微博登录", "微博登录失效，请重新获取授权", { (action) in
                         self.jumpAndAuth()
                     })
                     return
@@ -103,12 +103,7 @@ extension WeiboManager:WeiboSDKDelegate {
             Defaults[.wb_access_token] = response.accessToken
             Defaults[.wb_refresh_token] = response.refreshToken
             Defaults[.wb_expirationDate] = response.expirationDate
-            switch self.authType! {
-            case .binding:
-                self.requestToBinding()
-            case .login:
-                self.requestLogin()
-            }
+            self.request()
         }
     }
 }

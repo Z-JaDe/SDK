@@ -7,12 +7,12 @@
 //
 
 import Foundation
-import JDKit
-import HandyJSON
-
+import Alert
+import Basic
+import SwiftyUserDefaults
 private var weChatPayKey:UInt8 = 0
 
-open class WechatPayReqModel:BaseEntityModel {
+open class WechatPayReqModel {
     public var appid:String?
     public var partnerid:String?
     public var prepayid:String?
@@ -69,7 +69,7 @@ open class WechatManager:ThirdManager {
         let req = getMessageToWXReq(shareModel)
         req.scene = Int32(WXSceneSession.rawValue)
         let result:Bool = WXApi.send(req)
-        HUD.showPrompt(result ? "微信分享成功" : "微信分享失败")
+        HUDManager.showPrompt(result ? "微信分享成功" : "微信分享失败")
     }
     func shareToWeChatTimeline(_ shareModel:ShareModel) {
         guard self.canUseWeChat() else {
@@ -79,7 +79,7 @@ open class WechatManager:ThirdManager {
         let req = getMessageToWXReq(shareModel)
         req.scene = Int32(WXSceneTimeline.rawValue)
         let result = WXApi.send(req)
-        HUD.showPrompt(result ? "微信朋友圈分享成功" : "微信朋友圈分享失败")
+        HUDManager.showPrompt(result ? "微信朋友圈分享成功" : "微信朋友圈分享失败")
     }
     func getMessageToWXReq(_ shareModel:ShareModel) -> SendMessageToWXReq {
         let message = WXMediaMessage();
@@ -97,20 +97,10 @@ open class WechatManager:ThirdManager {
         return req
     }
     // MARK: -
-    open override func requestLogin(needRefreshToken:Bool = true,onlyRequest:Bool = false) {
-        func requestToLogin() {
-            LoginModel.requestToLogin(loginType: .wechatLogin, onlyRequest: onlyRequest)
+    override func requestLogin() {
+        self.wechatRefreshToken {
+            super.requestLogin()
         }
-        if needRefreshToken {
-            self.wechatRefreshToken {
-                requestToLogin()
-            }
-        }else {
-            requestToLogin()
-        }
-    }
-    fileprivate func requestToBinding() {
-        LoginModel.requestToBindingWechat()
     }
 }
 
@@ -119,39 +109,45 @@ extension WechatManager {
         guard resp.errCode == 0 else {
             return
         }
-        let hud = HUD.showMessage("获取微信登录参数中")
-        _ = thirdAuthProvider.jd_request(.wechatAccessToken(code: resp.code)).mapJSON().subscribe(onNext:{[unowned self] (result) in
-            hud.hide()
-            guard let dict = result as? NSDictionary,dict[errcode_key] == nil else {
-                Alert.showChoice(title: "微信登录", "获取微信登录参数出错，请重新获取授权", {
+        let hud = HUDManager.showMessage("获取微信登录参数中")
+        let urlStr = "https://api.weixin.qq.com/sns/oauth2/access_token"
+        var params = [String:Any]()
+        params["code"] = resp.code
+        params["grant_type"] = "authorization_code"
+        params["secret"] = WechatAppSecret
+        params["appid"] = WechatAppid
+        request(urlStr, params: params) { (dict) in
+            guard let dict = dict,dict[errcode_key] == nil else {
+                Alert.showConfirm(title: "微信登录", "获取微信登录参数出错，请重新获取授权", {(action) in
                     self.jumpAndAuth()
                 })
                 return
             }
+            hud.hide()
             Defaults[.wx_access_token] = dict[access_token_key] as? String
             Defaults[.wx_refresh_token] = dict[refresh_token_key] as? String
             Defaults[.wx_openId] = dict[openId_key] as? String
-            switch self.authType! {
-            case .binding:
-                self.requestToBinding()
-            case .login:
-                self.requestLogin(needRefreshToken:false)
-            }
-        })
+            self.request()
+        }
     }
     fileprivate func wechatRefreshToken(_ callback:@escaping ()->()) {
-        let hud = HUD.showMessage("刷新微信登录参数中")
-        _ = thirdAuthProvider.jd_request(.wechatRefreshToken).mapJSON().subscribe(onNext:{ (result) in
+        let hud = HUDManager.showMessage("刷新微信登录参数中")
+        let urlStr = "https://api.weixin.qq.com/sns/oauth2/access_token"
+        var params = [String:Any]()
+        params["grant_type"] = "authorization_code"
+        params["secret"] = WechatAppSecret
+        params["appid"] = WechatAppid
+        request(urlStr, params: params) { (dict) in
             hud.hide()
-            guard let dict = result as? NSDictionary,dict[errcode_key] == nil,dict[refresh_token_key] != nil else {
-                Alert.showChoice(title: "微信登录", "微信登录失效，请重新获取授权", {
+            guard let dict = dict,dict[errcode_key] == nil,dict[refresh_token_key] != nil else {
+                Alert.showConfirm(title: "微信登录", "微信登录失效，请重新获取授权", {(action) in
                     self.jumpAndAuth()
                 })
                 return
             }
             Defaults[.wx_access_token] = dict[access_token_key] as? String
             callback()
-        })
+        }
     }
 }
 extension WechatManager:WXApiDelegate {
@@ -163,13 +159,13 @@ extension WechatManager:WXApiDelegate {
         }else if let resp = resp as? PayResp {
             switch WXErrCode(resp.errCode) {
             case WXSuccess:
-                HUD.showSuccess("支付成功")
+                HUDManager.showSuccess("支付成功")
                 self.payCallBackConfig(isSuccessful: true)
             case WXErrCodeUserCancel:
-                HUD.showSuccess("取消支付")
+                HUDManager.showSuccess("取消支付")
                 self.payCallBackConfig(isSuccessful: false)
             default:
-                HUD.showSuccess("支付失败")
+                HUDManager.showSuccess("支付失败")
                 self.payCallBackConfig(isSuccessful: false)
             }
         }

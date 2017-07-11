@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import JDKit
 import MessageUI
-
+import Alert
+import Basic
 class MessageUIManager:ThirdManager {
     open static let shared = MessageUIManager()
     private override init() {}
@@ -32,7 +32,7 @@ extension MessageUIManager:MFMailComposeViewControllerDelegate {
     }
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         if (result == .sent) {
-            HUD.showPrompt("已经点击发送")
+            HUDManager.showPrompt("已经点击发送")
         }
         jd.visibleVC()?.dismissVC()
     }
@@ -55,7 +55,7 @@ extension MessageUIManager:MFMessageComposeViewControllerDelegate {
     }
     func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
         if (result == .sent) {
-            HUD.showPrompt("已经点击发送")
+            HUDManager.showPrompt("已经点击发送")
         }
         jd.visibleVC()?.dismissVC()
     }

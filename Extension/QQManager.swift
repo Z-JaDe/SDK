@@ -7,7 +7,11 @@
 //
 
 import Foundation
-import JDKit
+import Tencent.QQApiInterface
+import Tencent.TencentOAuth
+import Basic
+import Alert
+import SwiftyUserDefaults
 
 open class QQManager:ThirdManager {
     open static let shared = QQManager()
@@ -76,44 +80,41 @@ open class QQManager:ThirdManager {
     func handleSendResult(sendResult:QQApiSendResultCode) {
         switch sendResult {
         case EQQAPIAPPNOTREGISTED:
-            HUD.showPrompt("App未注册")
+            HUDManager.showPrompt("App未注册")
         case EQQAPIMESSAGECONTENTINVALID,EQQAPIMESSAGECONTENTNULL,EQQAPIMESSAGETYPEINVALID:
-            HUD.showPrompt("发送参数错误")
+            HUDManager.showPrompt("发送参数错误")
         case EQQAPIQQNOTINSTALLED:
-            HUD.showPrompt("未安装手Q")
+            HUDManager.showPrompt("未安装手Q")
         case EQQAPIQQNOTSUPPORTAPI:
-            HUD.showPrompt("API接口不支持")
+            HUDManager.showPrompt("API接口不支持")
         case EQQAPISENDFAILD:
-            HUD.showPrompt("发送失败")
+            HUDManager.showPrompt("发送失败")
         case EQQAPIQZONENOTSUPPORTTEXT:
-            HUD.showPrompt("空间分享不支持纯文本分享，请使用图文分享")
+            HUDManager.showPrompt("空间分享不支持纯文本分享，请使用图文分享")
         case EQQAPIQZONENOTSUPPORTIMAGE:
-            HUD.showPrompt("空间分享不支持纯图片分享，请使用图文分享")
+            HUDManager.showPrompt("空间分享不支持纯图片分享，请使用图文分享")
         default:
             break
         }
     }
     // MARK: -
-    open override func requestLogin(needRefreshToken:Bool = true,onlyRequest:Bool = false) {
+    override func requestLogin() {
         self.qqRefreshToken {
-            LoginModel.requestToLogin(loginType: .qqLogin, onlyRequest: onlyRequest)
+            super.requestLogin()
         }
-    }
-    fileprivate func requestToBinding() {
-        LoginModel.requestToBindingQQ()
     }
     // MARK: -
 }
 extension QQManager {
     fileprivate func qqRefreshToken(_ callback:@escaping ()->()) {
         guard let expirationDate = Defaults[.qq_expirationDate] else {
-            Alert.showChoice(title: "QQ登录", "QQ登录出现问题，请重新获取授权", {
+            Alert.showConfirm(title: "QQ登录", "QQ登录出现问题，请重新获取授权", { (action) in
                 self.jumpAndAuth()
             })
             return
         }
         guard expirationDate > Date(timeIntervalSinceNow: -3600) else {
-            Alert.showChoice(title: "QQ登录", "QQ登录失效，请重新获取授权", {
+            Alert.showConfirm(title: "QQ登录", "QQ登录失效，请重新获取授权", { (action) in
                 self.jumpAndAuth()
             })
             return
@@ -124,18 +125,13 @@ extension QQManager {
 
 extension QQManager:TencentSessionDelegate {
     open func tencentDidLogin() {
-        guard let accessToken = self.tencentOAuth.accessToken,accessToken.length > 0 else {
+        guard let accessToken = self.tencentOAuth.accessToken,accessToken.count > 0 else {
             return
         }
         Defaults[.qq_access_token] = self.tencentOAuth.accessToken
         Defaults[.qq_openId] = self.tencentOAuth.openId
         Defaults[.qq_expirationDate] = self.tencentOAuth.expirationDate
-        switch self.authType! {
-        case .binding:
-            self.requestToBinding()
-        case .login:
-            self.requestLogin()
-        }
+        self.request()
     }
     open func tencentDidNotLogin(_ cancelled: Bool) {
         

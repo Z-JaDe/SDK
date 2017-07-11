@@ -1,0 +1,4 @@
+module WeiboSDK [system] {
+    header "../../Pods/WeiboSDK/libWeiboSDK/WeiboSDK.h"
+    export *
+}

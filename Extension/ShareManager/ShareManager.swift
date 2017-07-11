@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import JDKit
+import Alert
+import Basic
 
 class ShareManager {
     var shareModel:ShareModel?
@@ -106,9 +107,7 @@ extension ShareManager {
         guard let shareModel = shareModel else {
             return
         }
-        guard jd.copy(shareModel.text) else {
-            return
-        }
-        HUD.showPrompt("已拷贝")
+        jd.copy(shareModel.text)
+        HUDManager.showPrompt("已拷贝")
     }
 }

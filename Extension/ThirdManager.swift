@@ -7,7 +7,9 @@
 //
 
 import Foundation
-
+import Tencent.TencentOAuth
+import WeiboSDK
+import AlipaySDK
 public enum ThirdAuthType {
     case binding
     case login
@@ -28,7 +30,38 @@ open class ThirdManager:NSObject {
         
     }
     
-    open func requestLogin(needRefreshToken:Bool,onlyRequest:Bool) {
+    open var requestLoginClosure:(()->())?
+    open var requestBindingClosure:(()->())?
+    func request() {
+        switch self.authType! {
+        case .binding:
+            self.requestToBinding()
+        case .login:
+            self.requestLogin()
+        }
+    }
+    func requestLogin() {
+        self.requestLoginClosure!()
+    }
+    func requestToBinding() {
+        self.requestBindingClosure!()
+    }
+}
+extension ThirdManager {
+    func request(_ urlStr:String,params:[String:Any]? = nil,completionHandler:@escaping ((NSDictionary?)->())) {
+        let url:URL = URL(string: urlStr)!
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            guard let data = data,error == nil else {
+                completionHandler(nil)
+                return
+            }
+            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+            if let object:NSDictionary = json as? NSDictionary {
+                completionHandler(object)
+            }else {
+                completionHandler(nil)
+            }
+        }.resume()
         
     }
 }

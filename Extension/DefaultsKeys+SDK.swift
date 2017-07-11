@@ -1,14 +1,15 @@
 //
 //  DefaultsKeys+SDK.swift
-//  ZiWoYou
+//  PaiBaoTang
 //
-//  Created by 茶古电子商务 on 16/12/21.
-//  Copyright © 2016年 Z_JaDe. All rights reserved.
+//  Created by 茶古电子商务 on 2017/7/11.
+//  Copyright © 2017年 Z_JaDe. All rights reserved.
 //
 
 import Foundation
-import JDKit
+import SwiftyUserDefaults
 
+// MARK: -
 public let openId_key:String = "openid"
 public let access_token_key:String = "access_token"
 public let refresh_token_key:String = "refresh_token"

@@ -7,16 +7,11 @@
 //
 
 import Foundation
-import JDKit
-
+import WeiboSDK
+import Basic
 open class SDKConfig {
     open static func register() {
-        let mapManager = BMKMapManager()
-        let ret = mapManager.start(BapduMapAppKey, generalDelegate: nil)
-        if ret == false {
-            NSLog("百度地图 manager start failed!")
-        }
-        WXApi.registerApp(WechatAppid, withDescription: jd.appDisplayName)
+        WXApi.registerApp(WechatAppid)
         #if DEBUG
             WeiboSDK.enableDebugMode(true)
         #endif

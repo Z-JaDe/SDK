@@ -6,16 +6,14 @@
 //  Copyright © 2017年 Z_JaDe. All rights reserved.
 //
 
-import Foundation
 import UIKit
-import JDKit
+import Basic
+
 open class ShareView:UIView {
     open static let shared = ShareView()
     private init() {
         super.init(frame: jd.screenBounds)
-        self.rx.whenTouch { (view) in
-            view.hide()
-        }.addDisposableTo(disposeBag)
+        self.tapGesture.addTarget(self, action: #selector(whenTouchView))
         
         self.addSubview(imgView)
         self.layer.addSublayer(self.blackLayer)
@@ -40,6 +38,11 @@ open class ShareView:UIView {
     }()
 }
 extension ShareView {
+    func whenTouchView() {
+        self.hide()
+    }
+}
+extension ShareView {
     static func show(_ closure:(ShareManager)->()) {
         let shareView = self.shared
         shareView.shareManager = ShareManager()
@@ -55,7 +58,6 @@ extension ShareView {
         
         
         window.addSubview(shareView)
-        shareView.configItems()
         shareView.setNeedsLayout()
         shareView.layoutIfNeeded()
         
@@ -63,10 +65,10 @@ extension ShareView {
         UIView.animate(withDuration: 0.5) {
             shareView.alpha = 1
         }
-        shareView.updateItems(isShow: true)
+        shareView.updateItemsVerticalLayout(isShow: true)
     }
     func hide() {
-        self.updateItems(isShow: false)
+        self.updateItemsVerticalLayout(isShow: false)
         UIView.animate(withDuration: 0.5, animations: { 
             self.alpha = 0
         }) { (finished) in
@@ -76,35 +78,21 @@ extension ShareView {
 }
 
 extension ShareView {
-    func configItems() {
+    open override func layoutSubviews() {
+        super.layoutSubviews()
         guard let shareArray = self.shareManager?.shareArray else {
             return
         }
-        let maxLineCount = shareArray.count + 1
-        let space = self.width / (maxColumn.toCGFloat * 2)
+        let maxLineCount:Int = shareArray.count + 1
+        
         for (offset, _ ) in shareArray.enumerated() {
             let item = getItemView(index: offset)
-            item.snp.remakeConstraints({ (maker) in
-                if offset % maxColumn == 0 {//第一排
-                    maker.centerX.equalTo(self.snp.left).offset(space)
-                }else {
-                    let lastView = getItemView(index: offset - 1)
-                    maker.centerX.equalTo(lastView).offset(space*2)
-                }
-                if offset / maxColumn == 0 {//第一行
-                    if self.isShow {
-                        maker.top.equalTo(self.snp.bottom).offset(-100*maxLineCount - 50)
-                    }else {
-                        maker.top.equalTo(self.snp.bottom)
-                    }
-                }else {
-                    let lastLineView = self.getItemView(index: offset - maxColumn)
-                    maker.topSpace(lastLineView).offset(10)
-                }
-            })
+            item.sizeToFit()
+            layoutItemHorizontal(offset: offset, item: item)
+            layoutItemVertical(offset: offset, item: item, maxLineCount: maxLineCount)
         }
     }
-    func updateItems(isShow:Bool) {
+    func updateItemsVerticalLayout(isShow:Bool) {
         guard let shareArray = self.shareManager?.shareArray else {
             return
         }
@@ -113,31 +101,42 @@ extension ShareView {
         for (offset, _ ) in shareArray.enumerated() {
             let item = getItemView(index: offset)
             let delay:TimeInterval = (offset % maxColumn).toDouble / (maxColumn.toDouble * 2)
-            UIView.spring(duration: 0.5, animations: {
-                if offset / self.maxColumn == 0 {
-                    item.snp.updateConstraints({ (maker) in
-                            if isShow {
-                                maker.top.equalTo(self.snp.bottom).offset(-100 * maxLineCount - 50)
-                            }else {
-                                maker.top.equalTo(self.snp.bottom)
-                            }
-                    })
-                    self.setNeedsLayout()
-                    self.layoutIfNeeded()
-                }
-            }, delay:delay)
+            UIView.animate(withDuration: 0.5, delay: delay, options: UIViewAnimationOptions.allowAnimatedContent, animations: {
+                self.layoutItemVertical(offset: offset, item: item, maxLineCount: maxLineCount)
+            }, completion: nil)
         }
     }
+    // MARK: - layout item
+    func layoutItemHorizontal(offset:Int,item:UIView) {
+        let horizontalSpace:CGFloat = self.width / (maxColumn.toCGFloat * 2)
+        if offset % maxColumn == 0 {//第一排
+            item.centerX = horizontalSpace
+        }else {
+            let lastView = getItemView(index: offset - 1)
+            item.centerX = lastView.centerX + horizontalSpace * 2
+        }
+    }
+    func layoutItemVertical(offset:Int,item:UIView,maxLineCount:Int) {
+        let verticalSpace:CGFloat = 10
+        if offset / maxColumn == 0 {//第一行
+            if self.isShow {
+                item.top = self.height - (item.height + verticalSpace) * CGFloat(maxLineCount) + 50
+            }else {
+                item.top = self.height
+            }
+        }else {
+            let lastLineView = self.getItemView(index: offset - maxColumn)
+            item.top = lastLineView.bottom + 10
+        }
+    }
+    // MARK: - 获取item
     func getItemView(index:Int) -> ShareItemView {
         var item:ShareItemView! = self.viewWithTag(index + 10) as? ShareItemView
         if (item == nil) {
             item = ShareItemView()
             item.tag = index + 10
             self.addSubview(item!)
-            
-            item.rx.whenTouch({[unowned self] (item) in
-                self.clickShareItemView(index: index)
-            }).addDisposableTo(item!.disposeBag)
+            item.tapGesture.addTarget(self, action: #selector(clickShareItemView(tap:)))
         }
         let shareArray = self.shareManager!.shareArray
         let title = shareArray[index]
@@ -145,7 +144,9 @@ extension ShareView {
         item.imageView.image = UIImage(named: "ShareImage.bundle/\(title)")
         return item
     }
-    func clickShareItemView(index:Int) {
+    // MARK: - 点击item
+    func clickShareItemView(tap:UITapGestureRecognizer) {
+        let index = tap.view!.tag - 10
         guard let shareArray = self.shareManager?.shareArray else {
             return
         }
@@ -166,17 +167,16 @@ class ShareItemView: UIView {
         super.init(frame: frame)
         self.addSubview(label)
         self.addSubview(imageView)
-        imageView.snp.makeConstraints { (maker) in
-            maker.left.greaterThanOrEqualToSuperview()
-            maker.centerX.top.equalToSuperview()
-        }
-        label.snp.makeConstraints { (maker) in
-            maker.left.greaterThanOrEqualToSuperview()
-            maker.centerX.bottom.equalToSuperview()
-            maker.topSpace(imageView).offset(8)
-        }
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageView.sizeToFit()
+        label.sizeToFit()
+        imageView.origin = CGPoint.zero
+        label.centerX = imageView.center.x
+        label.top = imageView.bottom + 8
     }
 }

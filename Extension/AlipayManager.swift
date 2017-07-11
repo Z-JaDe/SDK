@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import JDKit
-
+import Alert
+import AlipaySDK
+import Basic
 private var alipayPayKey:UInt8 = 0
 
 open class AlipayManager:ThirdManager {
@@ -18,7 +19,7 @@ open class AlipayManager:ThirdManager {
 extension AlipayManager {
     open func requestToPay(_ orderStr:String,_ callback: @escaping (Bool)->()) {
         setAssociatedObject(&alipayPayKey, callback)
-        AlipaySDK.defaultService().payOrder(orderStr, fromScheme: ZiWoYouScheme) { (resultDict) in
+        AlipaySDK.defaultService().payOrder(orderStr, fromScheme: PaiBaoTangScheme) { (resultDict) in
             self.payCallBackConfig(resultDict)
         }
     }
@@ -28,13 +29,13 @@ extension AlipayManager {
             if let resultDict = resultDict,let memo = resultDict["memo"] as? String {
                 if resultDict["resultStatus"] as? String == "9000" {
                     callback(true)
-                    HUD.showSuccess(memo)
+                    HUDManager.showSuccess(memo)
                 }else {
                     callback(false)
-                    HUD.showError(memo)
+                    HUDManager.showError(memo)
                 }
             }else {
-                HUD.showError("支付宝支付失败，未知错误")
+                HUDManager.showError("支付宝支付失败，未知错误")
                 callback(false)
             }
             
