@@ -15,5 +15,7 @@ FOUNDATION_EXPORT double SDKVersionNumber;
 FOUNDATION_EXPORT const unsigned char SDKVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <SDK/PublicHeader.h>
-
+#import "Wechat/WXApi.h"
+#import "Wechat/WXApiObject.h"
+#import "Wechat/WechatAuthSDK.h"
 

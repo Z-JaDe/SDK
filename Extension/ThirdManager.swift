@@ -24,7 +24,7 @@ open class ThirdManager:NSObject {
         self.authType = .login
         self.jumpAndAuth()
     }
-    open func jumpAndAuth() {
+    func jumpAndAuth() {
         
     }
     
