@@ -9,18 +9,11 @@
 import Foundation
 import MessageUI
 import Alert
-import Basic
+import JDKit
 class MessageUIManager:ThirdManager {
-    open static let shared = MessageUIManager()
-    private override init() {}
-}
-extension MessageUIManager:MFMailComposeViewControllerDelegate {
-    func canUseEmail() -> Bool {
-        return MFMailComposeViewController.canSendMail()
-    }
     // MARK: - 邮件分享
     func shareToEmail(_ shareModel:ShareModel) {
-        guard self.canUseEmail() else {
+        guard MessageUIManager.canUseEmail() else {
             Alert.showPrompt(title: "邮箱分享", "无法使用邮箱分享")
             return
         }
@@ -30,20 +23,9 @@ extension MessageUIManager:MFMailComposeViewControllerDelegate {
         picker.mailComposeDelegate = self
         jd.currentNavC.presentVC(picker, animated: true)
     }
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if (result == .sent) {
-            HUDManager.showPrompt("已经点击发送")
-        }
-        jd.visibleVC()?.dismissVC()
-    }
-}
-extension MessageUIManager:MFMessageComposeViewControllerDelegate {
-    func canUseMessage() -> Bool {
-        return MFMessageComposeViewController.canSendText()
-    }
     // MARK: - 短信分享
     func shareToMessage(_ shareModel:ShareModel) {
-        guard self.canUseMessage() else {
+        guard MessageUIManager.canUseMessage() else {
             Alert.showPrompt(title: "短信分享", "无法使用短信分享")
             return
         }
@@ -53,9 +35,27 @@ extension MessageUIManager:MFMessageComposeViewControllerDelegate {
         picker.messageComposeDelegate = self
         jd.currentNavC.presentVC(picker, animated: true)
     }
+}
+extension MessageUIManager {
+    static func canUseEmail() -> Bool {
+        return MFMailComposeViewController.canSendMail()
+    }
+    static func canUseMessage() -> Bool {
+        return MFMessageComposeViewController.canSendText()
+    }
+}
+extension MessageUIManager:MFMailComposeViewControllerDelegate {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if (result == .sent) {
+            HUD.showPrompt("已经点击发送")
+        }
+        jd.visibleVC()?.dismissVC()
+    }
+}
+extension MessageUIManager:MFMessageComposeViewControllerDelegate {
     func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
         if (result == .sent) {
-            HUDManager.showPrompt("已经点击发送")
+            HUD.showPrompt("已经点击发送")
         }
         jd.visibleVC()?.dismissVC()
     }

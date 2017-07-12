@@ -80,7 +80,7 @@ extension ThirdManager {
         if result == false {
             if url.host == "safepay" || url.host == "platformapi" {
                 AlipaySDK.defaultService().processOrder(withPaymentResult: url, standbyCallback: { (resultDic) in
-                    AlipayManager.shared.payCallBackConfig(resultDic)
+                    AlipayManager().payCallBackConfig(resultDic)
                 })
                 result = true
             }

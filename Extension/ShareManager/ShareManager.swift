@@ -8,29 +8,29 @@
 
 import Foundation
 import Alert
-import Basic
+import JDKit
 
 class ShareManager {
     var shareModel:ShareModel?
     lazy var shareArray:[String] = {
         var array = [String]()
-        if QQManager.shared.canUseQQShare() {
+        if QQManager.canUseQQShare() {
             array.append("QQ好友")
             array.append("QQ空间")
-        }else if QQManager.shared.canUseQzoneShare() {
+        }else if QQManager.canUseQzoneShare() {
             array.append("QQ空间")
         }
-        if WechatManager.shared.canUseWeChat() {
+        if WechatManager.canUseWeChat() {
             array.append("微信好友")
             array.append("微信朋友圈")
         }
-        if WeiboManager.shared.canUseWeiboShare() {
+        if WeiboManager.canUseWeiboShare() {
             array.append("新浪微博")
         }
-        if MessageUIManager.shared.canUseEmail() {
+        if MessageUIManager.canUseEmail() {
             array.append("Email")
         }
-        if MessageUIManager.shared.canUseMessage() {
+        if MessageUIManager.canUseMessage() {
             array.append("短信")
         }
         array.append("复制链接")
@@ -65,13 +65,13 @@ extension ShareManager {
         guard let shareModel = shareModel else {
             return
         }
-        QQManager.shared.shareToQQ(shareModel)
+        QQManager().shareToQQ(shareModel)
     }
     func shareToQzone() {
         guard let shareModel = shareModel else {
             return
         }
-        QQManager.shared.shareToQzone(shareModel)
+        QQManager().shareToQzone(shareModel)
     }
     func shareToWeChat() {
         guard let shareModel = shareModel else {
@@ -95,19 +95,19 @@ extension ShareManager {
         guard let shareModel = shareModel else {
             return
         }
-        MessageUIManager.shared.shareToEmail(shareModel)
+        MessageUIManager().shareToEmail(shareModel)
     }
     func shareToMessage() {
         guard let shareModel = shareModel else {
             return
         }
-        MessageUIManager.shared.shareToMessage(shareModel)
+        MessageUIManager().shareToMessage(shareModel)
     }
     func shareToPasteboard() {
         guard let shareModel = shareModel else {
             return
         }
         jd.copy(shareModel.text)
-        HUDManager.showPrompt("已拷贝")
+        HUD.showPrompt("已拷贝")
     }
 }

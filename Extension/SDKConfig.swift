@@ -8,7 +8,7 @@
 
 import Foundation
 import WeiboSDK
-import Basic
+import AppInfoData
 open class SDKConfig {
     open static func register() {
         WXApi.registerApp(WechatAppid)

@@ -8,23 +8,15 @@
 
 import UIKit
 import Alert
-import SwiftyUserDefaults
+import AppInfoData
 import WeiboSDK
-import Basic
-open class WeiboManager: ThirdManager {
-    open static let shared = WeiboManager()
-    private override init() {}
-    
-    func canUseWeiboShare() -> Bool {
-        
-        return WeiboSDK.isCanShareInWeiboAPP()
-    }
-    func canUseWeiboLogin() -> Bool {
-        return WeiboSDK.isCanSSOInWeiboApp()
-    }
-    
+import JDKit
+public class WeiboManager: ThirdManager {
+    public static var shared:WeiboManager = WeiboManager()
+    private override init(){}
+    // MARK: - 登录
     open override func jumpAndAuth() {
-        guard self.canUseWeiboLogin() else {
+        guard WeiboManager.canUseWeiboLogin() else {
             Alert.showPrompt(title: "微博登录", "不可以通过微博客户端登录，请检查您是否安装微博客户端")
             return
         }
@@ -36,13 +28,29 @@ open class WeiboManager: ThirdManager {
     
     // MARK: - 分享
     func shareToWeibo(_ shareModel:ShareModel) {
-        guard self.canUseWeiboShare() else {
+        guard WeiboManager.canUseWeiboShare() else {
             Alert.showPrompt(title: "微博分享", "不可以通过微博客户端进行分享，请检查您是否安装微博客户端")
             return
         }
         let req = getMessageToWeiboReq(shareModel)
         WeiboSDK.send(req)
     }
+    // MARK: -
+    override func requestLogin() {
+        self.weiboRefreshToken {
+            super.requestLogin()
+        }
+    }
+}
+extension WeiboManager {
+    static func canUseWeiboShare() -> Bool {
+        return WeiboSDK.isCanShareInWeiboAPP()
+    }
+    static func canUseWeiboLogin() -> Bool {
+        return WeiboSDK.isCanSSOInWeiboApp()
+    }
+}
+extension WeiboManager {
     func getMessageToWeiboReq(_ shareModel:ShareModel) -> WBSendMessageToWeiboRequest {
         let authRequest = WBAuthorizeRequest.request() as! WBAuthorizeRequest
         authRequest.scope = "all"
@@ -60,15 +68,9 @@ open class WeiboManager: ThirdManager {
         let request:WBSendMessageToWeiboRequest = WBSendMessageToWeiboRequest.request(withMessage: message, authInfo: authRequest, access_token: nil) as! WBSendMessageToWeiboRequest
         return request
     }
-    // MARK: -
-    override func requestLogin() {
-        self.weiboRefreshToken {
-            super.requestLogin()
-        }
-    }
 }
 extension WeiboManager {
-    fileprivate func weiboRefreshToken(_ callback:@escaping ()->()) {
+    func weiboRefreshToken(_ callback:@escaping ()->()) {
         guard let expirationDate = Defaults[.wb_expirationDate] else {
             Alert.showConfirm(title: "微博登录", "微博登录出现问题，请重新获取授权", { (action) in
                 self.jumpAndAuth()
@@ -76,7 +78,7 @@ extension WeiboManager {
             return
         }
         guard expirationDate > Date(timeIntervalSinceNow: -3600) else {
-            let hud = HUDManager.showMessage("获取微博登录参数中")
+            let hud = HUD.showMessage("获取微博登录参数中")
             _ = WBHttpRequest(forRenewAccessTokenWithRefreshToken: Defaults[.wb_refresh_token], queue: nil, withCompletionHandler: { (request, result, error) in
                 hud.hide()
                 guard error == nil else {
