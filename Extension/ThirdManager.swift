@@ -7,9 +7,7 @@
 //
 
 import Foundation
-import Tencent.TencentOAuth
-import WeiboSDK
-import AlipaySDK
+import ThirdSDK
 public enum ThirdAuthType {
     case binding
     case login

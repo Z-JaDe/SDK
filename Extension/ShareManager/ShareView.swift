@@ -8,7 +8,7 @@
 
 import UIKit
 import AppInfoData
-import JDKit
+import Extension
 open class ShareView:UIView {
     open static let shared = ShareView()
     private init() {

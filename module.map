@@ -1,0 +1,7 @@
+module ThirdSDK [system] {
+    header "./Alipay/AlipaySDK.h"
+    header "./Tencent/TencentOpenAPI.h"
+    header "../Pods/WeiboSDK/libWeiboSDK/WeiboSDK.h"
+    
+    export *
+}

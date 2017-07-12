@@ -9,7 +9,7 @@
 import Foundation
 import Alert
 import AppInfoData
-import JDKit
+import Extension
 private var weChatPayKey:UInt8 = 0
 
 open class WechatPayReqModel {

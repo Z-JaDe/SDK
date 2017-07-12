@@ -8,7 +8,7 @@
 
 import Foundation
 import Alert
-import JDKit
+import Extension
 
 class ShareManager {
     var shareModel:ShareModel?

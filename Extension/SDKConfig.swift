@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import WeiboSDK
+import ThirdSDK
 import AppInfoData
 open class SDKConfig {
     open static func register() {

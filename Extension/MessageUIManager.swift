@@ -9,7 +9,7 @@
 import Foundation
 import MessageUI
 import Alert
-import JDKit
+import Extension
 class MessageUIManager:ThirdManager {
     // MARK: - 邮件分享
     func shareToEmail(_ shareModel:ShareModel) {

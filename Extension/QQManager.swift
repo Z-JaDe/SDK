@@ -7,11 +7,9 @@
 //
 
 import Foundation
-import Tencent.QQApiInterface
-import Tencent.TencentOAuth
 import AppInfoData
 import Alert
-
+import ThirdSDK
 public class QQManager:ThirdManager {
     override init() {
         super.init()

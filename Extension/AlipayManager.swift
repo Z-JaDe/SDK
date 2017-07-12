@@ -8,7 +8,7 @@
 
 import Foundation
 import Alert
-import AlipaySDK
+import ThirdSDK
 import AppInfoData
 
 public class AlipayManager:ThirdManager {
