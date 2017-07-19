@@ -21,7 +21,7 @@ class MessageUIManager:ThirdManager {
         picker.setSubject(shareModel.title)
         picker.setMessageBody(shareModel.text, isHTML: false)
         picker.mailComposeDelegate = self
-        jd.currentNavC.presentVC(picker, animated: true)
+        rootVC().presentVC(picker, animated: true)
     }
     // MARK: - 短信分享
     func shareToMessage(_ shareModel:ShareModel) {
@@ -33,8 +33,9 @@ class MessageUIManager:ThirdManager {
         picker.subject = shareModel.title
         picker.body = shareModel.text
         picker.messageComposeDelegate = self
-        jd.currentNavC.presentVC(picker, animated: true)
+        rootVC().presentVC(picker, animated: true)
     }
+
 }
 extension MessageUIManager {
     static func canUseEmail() -> Bool {
@@ -49,7 +50,7 @@ extension MessageUIManager:MFMailComposeViewControllerDelegate {
         if (result == .sent) {
             HUD.showPrompt("已经点击发送")
         }
-        jd.visibleVC()?.dismissVC()
+        controller.dismissVC()
     }
 }
 extension MessageUIManager:MFMessageComposeViewControllerDelegate {
@@ -57,6 +58,6 @@ extension MessageUIManager:MFMessageComposeViewControllerDelegate {
         if (result == .sent) {
             HUD.showPrompt("已经点击发送")
         }
-        jd.visibleVC()?.dismissVC()
+        controller.dismissVC()
     }
 }

@@ -44,6 +44,11 @@ open class ThirdManager:NSObject {
     func requestToBinding() {
         self.requestBindingClosure!()
     }
+    
+    /// ZJaDe: 
+    func rootVC() -> UIViewController {
+        return UIApplication.shared.delegate!.window!!.rootViewController!
+    }
 }
 extension ThirdManager {
     func request(_ urlStr:String,params:[String:Any]? = nil,completionHandler:@escaping ((NSDictionary?)->())) {

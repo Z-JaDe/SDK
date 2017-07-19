@@ -10,6 +10,7 @@ import Foundation
 import Alert
 import AppInfoData
 import Extension
+
 private var weChatPayKey:UInt8 = 0
 
 open class WechatPayReqModel {
@@ -35,7 +36,7 @@ public class WechatManager:ThirdManager {
         req.scope = WechatAuthScope
         /// ZJaDe: -[SendAuthReq setOpenId:]: unrecognized selector sent to instance 0x17064b19
 //        req.openId = Defaults[.wx_openId]
-        WXApi.sendAuthReq(req, viewController: jd.visibleVC(), delegate: self)
+        WXApi.sendAuthReq(req, viewController: rootVC(), delegate: self)
     }
     // MARK: - 支付
     open func requestToPay(_ payReqModel:WechatPayReqModel,_ callback:(Bool)->()) {
