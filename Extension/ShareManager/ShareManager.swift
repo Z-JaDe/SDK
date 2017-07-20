@@ -65,13 +65,13 @@ extension ShareManager {
         guard let shareModel = shareModel else {
             return
         }
-        QQManager().shareToQQ(shareModel)
+        QQManager.shared.shareToQQ(shareModel)
     }
     func shareToQzone() {
         guard let shareModel = shareModel else {
             return
         }
-        QQManager().shareToQzone(shareModel)
+        QQManager.shared.shareToQzone(shareModel)
     }
     func shareToWeChat() {
         guard let shareModel = shareModel else {

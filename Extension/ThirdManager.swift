@@ -14,35 +14,42 @@ public enum ThirdAuthType {
 }
 
 open class ThirdManager:NSObject {
-    open var authType:ThirdAuthType!
-    
-    open func binding() {
+    var authType:ThirdAuthType!
+    // MARK: - 跳转第三方app并请求绑定
+    public func jumpBinding(_ bindingRequestClosure:@escaping ()->()) {
+        self.requestBindingClosure = bindingRequestClosure
         self.authType = .binding
         self.jumpAndAuth()
     }
-    open func loginAndAuth() {
+    // MARK: - 跳转第三方app并请求登录
+    public func jumpLoginAndAuth(_ loginRequestClosure:@escaping ()->()) {
+        self.requestLoginClosure = loginRequestClosure
         self.authType = .login
         self.jumpAndAuth()
     }
+    /// ZJaDe: 请求登录并检查参数有效期
+    public func requestLoginAndRefreshParams(_ loginRequestClosure:@escaping ()->()) {
+        self.requestLoginClosure = loginRequestClosure
+        self.requestLogin()
+    }
+    /// ZJaDe: 子类继承跳转第三方app逻辑
     func jumpAndAuth() {
         
     }
-    
-    open var requestLoginClosure:(()->())?
-    open var requestBindingClosure:(()->())?
+    /// ZJaDe: 存储登录和绑定的请求闭包
+    var requestLoginClosure:(()->())?
+    var requestBindingClosure:(()->())?
+    /// ZJaDe: 子类直接调用
     func request() {
         switch self.authType! {
         case .binding:
-            self.requestToBinding()
+            self.requestBindingClosure!()
         case .login:
             self.requestLogin()
         }
     }
     func requestLogin() {
         self.requestLoginClosure!()
-    }
-    func requestToBinding() {
-        self.requestBindingClosure!()
     }
     
     /// ZJaDe: 

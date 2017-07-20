@@ -11,7 +11,8 @@ import AppInfoData
 import Alert
 import ThirdSDK
 public class QQManager:ThirdManager {
-    override init() {
+    public static var shared:QQManager = QQManager()
+    private override init() {
         super.init()
         self.tencentOAuth.openSDKWebViewQQShareEnable()
     }
