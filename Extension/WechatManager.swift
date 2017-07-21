@@ -10,7 +10,7 @@ import Foundation
 import Alert
 import AppInfoData
 import Extension
-
+import Alamofire
 private var weChatPayKey:UInt8 = 0
 
 open class WechatPayReqModel {
@@ -120,14 +120,14 @@ extension WechatManager {
         params["grant_type"] = "authorization_code"
         params["secret"] = WechatAppSecret
         params["appid"] = WechatAppid
-        request(urlStr, params: params) { (dict) in
-            guard let dict = dict,dict[errcode_key] == nil else {
+        Alamofire.request(urlStr, method: .post, parameters: params).responseJSON { (response) in
+            hud.hide()
+            guard let dict = response.result.value as? NSDictionary, dict[errcode_key] == nil else {
                 Alert.showConfirm(title: "微信登录", "获取微信登录参数出错，请重新获取授权", {(action) in
                     self.jumpAndAuth()
                 })
                 return
             }
-            hud.hide()
             Defaults[.wx_access_token] = dict[access_token_key] as? String ?? ""
             Defaults[.wx_refresh_token] = dict[refresh_token_key] as? String ?? ""
             Defaults[.wx_openId] = dict[openId_key] as? String ?? ""
@@ -136,14 +136,14 @@ extension WechatManager {
     }
     fileprivate func wechatRefreshToken(_ callback:@escaping ()->()) {
         let hud = HUD.showMessage("刷新微信登录参数中")
-        let urlStr = "https://api.weixin.qq.com/sns/oauth2/access_token"
+        let urlStr = "https://api.weixin.qq.com/sns/oauth2/refresh_token"
         var params = [String:Any]()
-        params["grant_type"] = "authorization_code"
-        params["secret"] = WechatAppSecret
         params["appid"] = WechatAppid
-        request(urlStr, params: params) { (dict) in
+        params["grant_type"] = refresh_token_key
+        params[refresh_token_key] = Defaults[.wx_refresh_token]
+        Alamofire.request(urlStr, method: .post, parameters: params).responseJSON { (response) in
             hud.hide()
-            guard let dict = dict,dict[errcode_key] == nil,dict[refresh_token_key] != nil else {
+            guard let dict = response.result.value as? NSDictionary,dict[errcode_key] == nil,dict[refresh_token_key] != nil else {
                 Alert.showConfirm(title: "微信登录", "微信登录失效，请重新获取授权", {(action) in
                     self.jumpAndAuth()
                 })

@@ -30,6 +30,7 @@ open class ThirdManager:NSObject {
     /// ZJaDe: 请求登录并检查参数有效期
     public func requestLoginAndRefreshParams(_ loginRequestClosure:@escaping ()->()) {
         self.requestLoginClosure = loginRequestClosure
+        self.authType = .login
         self.requestLogin()
     }
     /// ZJaDe: 子类继承跳转第三方app逻辑
@@ -45,9 +46,10 @@ open class ThirdManager:NSObject {
         case .binding:
             self.requestBindingClosure!()
         case .login:
-            self.requestLogin()
+            self.requestLoginClosure!()
         }
     }
+    /// ZJaDe: 请求登录并检查参数有效期 --子类继承
     func requestLogin() {
         self.requestLoginClosure!()
     }
@@ -57,24 +59,7 @@ open class ThirdManager:NSObject {
         return UIApplication.shared.delegate!.window!!.rootViewController!
     }
 }
-extension ThirdManager {
-    func request(_ urlStr:String,params:[String:Any]? = nil,completionHandler:@escaping ((NSDictionary?)->())) {
-        let url:URL = URL(string: urlStr)!
-        URLSession.shared.dataTask(with: url) { (data, response, error) in
-            guard let data = data,error == nil else {
-                completionHandler(nil)
-                return
-            }
-            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-            if let object:NSDictionary = json as? NSDictionary {
-                completionHandler(object)
-            }else {
-                completionHandler(nil)
-            }
-        }.resume()
-        
-    }
-}
+
 extension ThirdManager {
     open static func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
         var result = false
