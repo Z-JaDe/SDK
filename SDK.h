@@ -18,3 +18,5 @@ FOUNDATION_EXPORT const unsigned char SDKVersionString[];
 #import "WXApi.h"
 #import "WXApiObject.h"
 #import "WechatAuthSDK.h"
+
+#import "WeiboSDK.h"
