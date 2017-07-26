@@ -11,10 +11,14 @@ import ThirdSDK
 import AppInfoData
 open class SDKConfig {
     open static func register() {
-        WXApi.registerApp(WechatAppid)
+        if !WechatAppid.isEmpty {
+            WXApi.registerApp(WechatAppid)
+        }
         #if DEBUG
             WeiboSDK.enableDebugMode(true)
         #endif
-        WeiboSDK.registerApp(WeiboAppKey)
+        if !WeiboAppKey.isEmpty {
+            WeiboSDK.registerApp(WeiboAppKey)
+        }
     }
 }
