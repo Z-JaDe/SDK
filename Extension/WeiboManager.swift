@@ -72,7 +72,7 @@ extension WeiboManager {
 extension WeiboManager {
     func weiboRefreshToken(_ callback:@escaping ()->()) {
         guard let expirationDate = Defaults[.wb_expirationDate] else {
-            Alert.showConfirm(title: "微博登录", "微博登录出现问题，请重新获取授权", { (action) in
+            Alert.showConfirm(title: "微博登录", "微博登录出现问题，请重新获取授权", { (_) in
                 self.jumpAndAuth()
             })
             return
@@ -82,7 +82,7 @@ extension WeiboManager {
             _ = WBHttpRequest(forRenewAccessTokenWithRefreshToken: Defaults[.wb_refresh_token], queue: nil, withCompletionHandler: { (request, result, error) in
                 hud.hide()
                 guard error == nil else {
-                    Alert.showConfirm(title: "微博登录", "微博登录失效，请重新获取授权", { (action) in
+                    Alert.showConfirm(title: "微博登录", "微博登录失效，请重新获取授权", { (_) in
                         self.jumpAndAuth()
                     })
                     return

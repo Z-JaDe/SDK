@@ -108,13 +108,13 @@ extension QQManager {
 extension QQManager {
     func qqRefreshToken(_ callback:@escaping ()->()) {
         guard let expirationDate = Defaults[.qq_expirationDate] else {
-            Alert.showConfirm(title: "QQ登录", "QQ登录出现问题，请重新获取授权", { (action) in
+            Alert.showConfirm(title: "QQ登录", "QQ登录出现问题，请重新获取授权", { (_) in
                 self.jumpAndAuth()
             })
             return
         }
         guard expirationDate > Date(timeIntervalSinceNow: -3600) else {
-            Alert.showConfirm(title: "QQ登录", "QQ登录失效，请重新获取授权", { (action) in
+            Alert.showConfirm(title: "QQ登录", "QQ登录失效，请重新获取授权", { (_) in
                 self.jumpAndAuth()
             })
             return
