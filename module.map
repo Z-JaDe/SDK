@@ -1,6 +1,8 @@
 module ThirdSDK [system] {
-    header "./Alipay/AlipaySDK.h"
-    header "./Tencent/TencentOpenAPI.h"
+    header "./Alipay/AlipaySDKHeaders.h"
+    header "./Tencent/TencentSDKHeaders.h"
+    header "./Wechat/WechatSDKHeaders.h"
+    header "./WeiboSDK/WeiboSDKHeaders.h"
     
     export *
 }

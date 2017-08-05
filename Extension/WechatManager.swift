@@ -11,6 +11,8 @@ import Alert
 import AppInfoData
 import Extension
 import Alamofire
+import ThirdSDK
+
 private var weChatPayKey:UInt8 = 0
 
 open class WechatPayReqModel {

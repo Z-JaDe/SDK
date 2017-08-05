@@ -11,6 +11,7 @@ import Alert
 import AppInfoData
 import ThirdSDK
 import Extension
+
 public class WeiboManager: ThirdManager {
     public static var shared:WeiboManager = WeiboManager()
     private override init(){}
@@ -79,7 +80,7 @@ extension WeiboManager {
         }
         guard expirationDate > Date(timeIntervalSinceNow: -3600) else {
             let hud = HUD.showMessage("获取微博登录参数中")
-            _ = WBHttpRequest(forRenewAccessTokenWithRefreshToken: Defaults[.wb_refresh_token], queue: nil, withCompletionHandler: { (request, result, error) in
+            _ = WBHttpRequest(forRenewAccessTokenWithRefreshToken: Defaults[.wx_refresh_token], queue: nil, withCompletionHandler: { (request, result, error) in
                 hud.hide()
                 guard error == nil else {
                     Alert.showConfirm(title: "微博登录", "微博登录失效，请重新获取授权", { (_) in
