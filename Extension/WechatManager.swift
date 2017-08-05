@@ -88,7 +88,7 @@ extension WechatManager {
         let message = WXMediaMessage();
         message.title = shareModel.title;
         message.description = shareModel.intro;
-        message.setThumbImage(UIImage(named: "thumbImage"))
+        message.setThumbImage(UIImage(named: "ic_thumbImage"))
         
         let webpageObject = WXWebpageObject()
         webpageObject.webpageUrl = shareModel.url
