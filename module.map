@@ -3,6 +3,7 @@ module ThirdSDK [system] {
     header "./Tencent/TencentSDKHeaders.h"
     header "./Wechat/WechatSDKHeaders.h"
     header "./WeiboSDK/WeiboSDKHeaders.h"
+    header "./BaiduMapAPI/BaiduMapAPIHeaders.h"
     
     export *
 }
