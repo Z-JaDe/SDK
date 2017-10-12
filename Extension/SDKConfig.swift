@@ -11,6 +11,12 @@ import ThirdSDK
 import AppInfoData
 open class SDKConfig {
     open static func register() {
+        let mapManager = BMKMapManager()
+        let ret = mapManager.start(BaiduMapAppkey, generalDelegate: nil)
+        if ret == false {
+            NSLog("百度地图 manager start failed!")
+        }
+        
         if !WechatAppid.isEmpty {
             WXApi.registerApp(WechatAppid)
         }

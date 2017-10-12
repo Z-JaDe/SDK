@@ -15,7 +15,7 @@ import Alert
 import AppInfoData
 
 public class BMKLocationManager:NSObject {
-    public let shared:BMKLocationManager = BMKLocationManager()
+    public static let shared:BMKLocationManager = BMKLocationManager()
     private override init() {
         super.init()
     }
