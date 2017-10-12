@@ -125,7 +125,7 @@ extension WechatManager {
         Alamofire.request(urlStr, method: .post, parameters: params).responseJSON { (response) in
             hud.hide()
             guard let dict = response.result.value as? NSDictionary, dict[errcode_key] == nil else {
-                Alert.showConfirm(title: "微信登录", "获取微信登录参数出错，请重新获取授权", {(_) in
+                Alert.showConfirm(title: "微信登录", "获取微信登录参数出错，请重新获取授权", { (_,_) in
                     self.jumpAndAuth()
                 })
                 return
@@ -146,7 +146,7 @@ extension WechatManager {
         Alamofire.request(urlStr, method: .post, parameters: params).responseJSON { (response) in
             hud.hide()
             guard let dict = response.result.value as? NSDictionary,dict[errcode_key] == nil,dict[refresh_token_key] != nil else {
-                Alert.showConfirm(title: "微信登录", "微信登录失效，请重新获取授权", {(_) in
+                Alert.showConfirm(title: "微信登录", "微信登录失效，请重新获取授权", { (_,_) in
                     self.jumpAndAuth()
                 })
                 return
