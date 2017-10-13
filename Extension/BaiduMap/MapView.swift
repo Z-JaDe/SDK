@@ -9,7 +9,8 @@
 import UIKit
 import ThirdSDK
 import RxSwift
-public class MapView: BMKMapView {
+import Extension
+public class MapView: BMKMapView,InitMethodProtocol {
     public var didUpdateLocation = PublishSubject<BMKUserLocation>()
     public var currentLocation:BMKUserLocation? {
         didSet {
@@ -18,16 +19,31 @@ public class MapView: BMKMapView {
             }
         }
     }
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        configInit()
+    }
+    required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
+    public func configInit() {
+        self.showsUserLocation = true
+        self.zoomLevel = 19
+        self.mapType = BMKMapTypeStandard
+    }
     
-    // MARK: - BMKMapViewDelegate
+    // MARK: -
     public var regionDidChange = PublishSubject<Void>()
 
     public func configMapViewWhenAppear() {
         self.delegate = self
+        self.viewWillAppear()
+
     }
     public func configMapViewWhenDisAppear() {
         self.delegate = nil
+        self.viewWillDisappear()
     }
     
     public func showMyLocation() {

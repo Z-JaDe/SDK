@@ -14,7 +14,7 @@ open class SDKConfig {
         let mapManager = BMKMapManager()
         let ret = mapManager.start(BaiduMapAppkey, generalDelegate: nil)
         if ret == false {
-            NSLog("百度地图 manager start failed!")
+            logError("百度地图 manager start failed!")
         }
         
         if !WechatAppid.isEmpty {
