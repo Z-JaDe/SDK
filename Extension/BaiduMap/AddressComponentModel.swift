@@ -11,6 +11,8 @@ import CoreLocation
 import Alert
 
 public class AddressComponentModel:CoordinateDesignable {
+    public var sematicDescription:String?
+    public var businessCircle:String?
     public var province:String = ""
     public var city:String = ""
     public var area:String = ""

@@ -21,8 +21,8 @@ public class BMKLocationManager:NSObject {
     }
     fileprivate var observeObjectCount:Int = 0
     // MARK: 反编码 坐标转地址
-    public lazy var geoCodeSearch = BMKGeoCodeSearch()
-    fileprivate lazy var reverseGeoCodeSubject = ReplaySubject<AddressComponentModel>.create(bufferSize: 1)
+    var searcherArr:[BMKGeoCodeSearch] = [BMKGeoCodeSearch]()
+    fileprivate lazy var reverseGeoCodeSubject = PublishSubject<(BMKGeoCodeSearch,AddressComponentModel)>()
     // MARK: 定位
     public lazy var locationService = BMKLocationService()
     fileprivate lazy var locationSubject = ReplaySubject<BMKUserLocation>.create(bufferSize: 1)
@@ -33,32 +33,37 @@ public extension BMKLocationManager {
     public func locationAndReverseGeoCode() -> Observable<AddressComponentModel> {
         return self.getLocation().flatMap {[unowned self] (userLocation) -> Observable<AddressComponentModel> in
             let coordinate = userLocation.location.coordinate
-            
-            return self.reverseGeoCode(coordinate).filter({ (model) -> Bool in
-                guard let modelCoordinate = model.coordinate else {
-                    return false
-                }
-                return modelCoordinate.latitude == coordinate.latitude && modelCoordinate.longitude == coordinate.longitude
-            })
+            return self.reverseGeoCode(coordinate)
         }
     }
     public func reverseGeoCode(_ coordinate:CLLocationCoordinate2D) -> Observable<AddressComponentModel> {
-        self.beginSearch(coordinate)
-        return self.reverseGeoCodeSubject.retry(3).take(1).do( onDispose: {
-            self.endSearch()
+        let searcher = self.beginSearch(coordinate)
+        return self.reverseGeoCodeSubject
+            .retry(3)
+            .take(1)
+            .filter{$0.0 == searcher}
+            .map{$0.1}
+            .do( onDispose: {[unowned self] in
+            self.endSearch(searcher)
         })
     }
-    fileprivate func beginSearch(_ coordinate:CLLocationCoordinate2D) {
-        self.geoCodeSearch.delegate = self
+    fileprivate func beginSearch(_ coordinate:CLLocationCoordinate2D) -> BMKGeoCodeSearch {
+        let searcher = BMKGeoCodeSearch()
+        searcher.delegate = self
         let result = BMKReverseGeoCodeOption()
         result.reverseGeoPoint = coordinate
-        if self.geoCodeSearch.reverseGeoCode(result) == false {
+        if searcher.reverseGeoCode(result) == false {
             self.reverseGeoCodeSubject.onError(NSError(domain: "反geo检索失败", code: -1, userInfo: nil))
             logDebug("反geo检索发送失败")
         }
+        self.searcherArr.append(searcher)
+        return searcher
     }
-    public func endSearch() {
-//        geoCodeSearch.delegate = nil
+    public func endSearch(_ searcher:BMKGeoCodeSearch) {
+        searcher.delegate = nil
+        if let index = self.searcherArr.index(of: searcher) {
+            self.searcherArr.remove(at: index)
+        }
     }
 }
 // MARK: - 反编码 坐标转地址 BMKGeoCodeSearchDelegate
@@ -74,12 +79,14 @@ extension BMKLocationManager:BMKGeoCodeSearchDelegate {
         }
         if result.address != nil, result.address.count > 0 {
             var addressModel = AddressComponentModel()
+            addressModel.sematicDescription = result.sematicDescription
+            addressModel.businessCircle = result.businessCircle
             addressModel.province = result.addressDetail.province
             addressModel.city = result.addressDetail.city
             addressModel.area = result.addressDetail.district
             addressModel.address = result.addressDetail.streetName + result.addressDetail.streetNumber
             addressModel.coordinate = result.location
-            self.reverseGeoCodeSubject.onNext(addressModel)
+            self.reverseGeoCodeSubject.onNext((searcher,addressModel))
         }else if (error != BMK_SEARCH_NO_ERROR) {
             HUD.showError("反编码错误->\(error)")
         }
@@ -111,24 +118,24 @@ extension BMKLocationManager {
     }
     // MARK: 停止定位
     public func endLocation() {
-        if self.observeObjectCount > 1 {
-            self.observeObjectCount -= 1
-        }else {
-            self.observeObjectCount = 0
-            self.stopUserLocationService()
-        }
+        self.stopUserLocationService()
     }
     // MARK: -
-    fileprivate func startUserLocationService() {
+    private func startUserLocationService() {
         self.observeObjectCount += 1
         if self.locationService.delegate == nil {
             self.locationService.delegate = self
             self.locationService.startUserLocationService()
         }
     }
-    fileprivate func stopUserLocationService() {
-        self.locationService.stopUserLocationService()
-        self.locationService.delegate = nil
+    private func stopUserLocationService() {
+        if self.observeObjectCount > 1 {
+            self.observeObjectCount -= 1
+        }else {
+            self.observeObjectCount = 0
+            self.locationService.stopUserLocationService()
+            self.locationService.delegate = nil
+        }
         
     }
     fileprivate func checkCanLocation(_ closure:@escaping ()->()) {
