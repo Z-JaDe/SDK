@@ -43,8 +43,8 @@ public class MapView: BMKMapView,InitMethodProtocol {
         self.viewWillAppear()
     }
     public func configMapViewWhenDisAppear() {
-        self.delegate = nil
         self.viewWillDisappear()
+        self.delegate = nil
     }
     
     public func showMyLocation() {
@@ -60,7 +60,9 @@ public class MapView: BMKMapView,InitMethodProtocol {
     public lazy var poiSearchSubject:PublishSubject<[BMKPoiInfo]> = PublishSubject()
     // MARK: -
     public func setRegion(with coordinate:CLLocationCoordinate2D) {
-        self.setRegion(BMKCoordinateRegionMake(coordinate, BMKCoordinateSpanMake(0.001625, 0.004705)), animated: true)
+        Async.main {
+            self.setRegion(BMKCoordinateRegionMake(coordinate, BMKCoordinateSpanMake(0.001625, 0.004705)), animated: true)
+        }
     }
 }
 
@@ -87,6 +89,7 @@ extension MapView:BMKPoiSearchDelegate {
     }
     public func onGetPoiResult(_ searcher: BMKPoiSearch!, result poiResult: BMKPoiResult!, errorCode: BMKSearchErrorCode) {
         hud?.hide()
+        searcher.delegate = nil
         guard errorCode == BMK_SEARCH_NO_ERROR else {
             return
         }
