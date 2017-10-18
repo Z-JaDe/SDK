@@ -79,7 +79,7 @@ public class WechatManager:ThirdManager {
     }
 }
 extension WechatManager {
-    public static func canUseWeChat() -> Bool {
+    static func canUseWeChat() -> Bool {
         return WXApi.isWXAppInstalled() && WXApi.isWXAppSupport()
     }
 }
