@@ -8,7 +8,7 @@
 
 import Foundation
 
-import PermissionScope
+import Extension
 import RxSwift
 import ThirdSDK
 import Alert
@@ -24,7 +24,7 @@ public class BMKLocationManager:NSObject {
     var searcherArr:[BMKGeoCodeSearch] = [BMKGeoCodeSearch]()
     fileprivate lazy var reverseGeoCodeSubject = PublishSubject<(BMKGeoCodeSearch,AddressComponentModel)>()
     // MARK: 定位
-    public lazy var locationService = BMKLocationService()
+    lazy var locationService = BMKLocationService()
     fileprivate lazy var locationSubject = ReplaySubject<BMKUserLocation>.create(bufferSize: 1)
     
 }

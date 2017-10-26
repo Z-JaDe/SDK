@@ -38,7 +38,7 @@ open class ShareView:UIView {
     }()
 }
 extension ShareView {
-    func whenTouchView() {
+    @objc func whenTouchView() {
         self.hide()
     }
 }
@@ -145,7 +145,7 @@ extension ShareView {
         return item
     }
     // MARK: - 点击item
-    func clickShareItemView(tap:UITapGestureRecognizer) {
+    @objc func clickShareItemView(tap:UITapGestureRecognizer) {
         let index = tap.view!.tag - 10
         guard let shareArray = self.shareManager?.shareArray else {
             return
