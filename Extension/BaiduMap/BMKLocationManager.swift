@@ -39,7 +39,6 @@ public extension BMKLocationManager {
     public func reverseGeoCode(_ coordinate:CLLocationCoordinate2D) -> Observable<AddressComponentModel> {
         let searcher = self.beginSearch(coordinate)
         return self.reverseGeoCodeSubject
-            .retry(3)
             .take(1)
             .filter{$0.0 == searcher}
             .map{$0.1}
