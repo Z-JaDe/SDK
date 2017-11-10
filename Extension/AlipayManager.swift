@@ -7,9 +7,7 @@
 //
 
 import Foundation
-import Alert
-import ThirdSDK
-import AppInfoData
+
 
 public class AlipayManager:ThirdManager {
     fileprivate var payCallback:((Bool)->())?

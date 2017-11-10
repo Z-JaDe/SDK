@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import ThirdSDK
+
 public enum ThirdAuthType {
     case binding
     case login

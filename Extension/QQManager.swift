@@ -7,9 +7,7 @@
 //
 
 import Foundation
-import AppInfoData
-import Alert
-import ThirdSDK
+
 public class QQManager:ThirdManager {
     public static var shared:QQManager = QQManager()
     private override init() {

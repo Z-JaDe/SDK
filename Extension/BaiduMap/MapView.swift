@@ -7,11 +7,9 @@
 //
 
 import UIKit
-import ThirdSDK
 import RxSwift
 import Extension
-import AppInfoData
-import Alert
+
 public class MapView: BMKMapView,InitMethodProtocol {
     public var didUpdateLocation = PublishSubject<BMKUserLocation>()
     public var currentLocation:BMKUserLocation? {

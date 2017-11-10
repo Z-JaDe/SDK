@@ -10,9 +10,6 @@ import Foundation
 
 import Extension
 import RxSwift
-import ThirdSDK
-import Alert
-import AppInfoData
 
 public class BMKLocationManager:NSObject {
     public static let shared:BMKLocationManager = BMKLocationManager()

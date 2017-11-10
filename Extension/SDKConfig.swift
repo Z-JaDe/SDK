@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import ThirdSDK
-import AppInfoData
+
 open class SDKConfig {
     open static func register() {
         let mapManager = BMKMapManager()

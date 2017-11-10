@@ -8,7 +8,6 @@
 
 import Foundation
 import MessageUI
-import Alert
 import Extension
 class MessageUIManager:ThirdManager {
     // MARK: - 邮件分享

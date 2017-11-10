@@ -7,9 +7,6 @@
 //
 
 import UIKit
-import Alert
-import AppInfoData
-import ThirdSDK
 import Extension
 
 public class WeiboManager: ThirdManager {

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alert
 import Extension
 
 class ShareManager {
