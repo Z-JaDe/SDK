@@ -9,7 +9,7 @@
 import Foundation
 import Extension
 import Alamofire
-
+import ThirdSDK
 private var weChatPayKey:UInt8 = 0
 
 open class WechatPayReqModel {
@@ -22,7 +22,7 @@ open class WechatPayReqModel {
     public var sign:String?
 }
 
-public class WechatManager:ThirdManager {
+public class WechatManager:ThirdLoginManager {
     public static var shared:WechatManager = WechatManager()
     private override init(){}
     // MARK: - 登录

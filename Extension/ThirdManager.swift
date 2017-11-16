@@ -7,79 +7,13 @@
 //
 
 import Foundation
-
-public enum ThirdAuthType {
-    case binding
-    case login
-}
+import RxSwift
 
 open class ThirdManager:NSObject {
-    var authType:ThirdAuthType!
-    // MARK: - 跳转第三方app并请求绑定
-    public func jumpBinding(_ bindingRequestClosure:@escaping ()->()) {
-        self.requestBindingClosure = bindingRequestClosure
-        self.authType = .binding
-        self.jumpAndAuth()
-    }
-    // MARK: - 跳转第三方app并请求登录
-    public func jumpLoginAndAuth(_ loginRequestClosure:@escaping ()->()) {
-        self.requestLoginClosure = loginRequestClosure
-        self.authType = .login
-        self.jumpAndAuth()
-    }
-    /// ZJaDe: 请求登录并检查参数有效期
-    public func requestLoginAndRefreshParams(_ loginRequestClosure:@escaping ()->()) {
-        self.requestLoginClosure = loginRequestClosure
-        self.authType = .login
-        self.requestLogin()
-    }
-    /// ZJaDe: 子类继承跳转第三方app逻辑
-    func jumpAndAuth() {
-        
-    }
-    /// ZJaDe: 存储登录和绑定的请求闭包
-    var requestLoginClosure:(()->())?
-    var requestBindingClosure:(()->())?
-    /// ZJaDe: 子类直接调用
-    func request() {
-        switch self.authType! {
-        case .binding:
-            self.requestBindingClosure!()
-        case .login:
-            self.requestLoginClosure!()
-        }
-    }
-    /// ZJaDe: 请求登录并检查参数有效期 --子类继承
-    func requestLogin() {
-        self.requestLoginClosure!()
-    }
-    
+    let disposeBag:DisposeBag = DisposeBag()
     /// ZJaDe: 
     func rootVC() -> UIViewController {
         return UIApplication.shared.delegate!.window!!.rootViewController!
     }
 }
 
-extension ThirdManager {
-    open static func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
-        var result = false
-        if result == false {
-            result = WXApi.handleOpen(url, delegate: WechatManager.shared)
-        }
-        if result == false && TencentOAuth.canHandleOpen(url) {
-            result = TencentOAuth.handleOpen(url)
-        }
-        if result == false {
-            result = WeiboSDK.handleOpen(url, delegate: WeiboManager.shared)
-        }
-        if result == false {
-            if url.host == "safepay" || url.host == "platformapi" {
-                AlipaySDK.defaultService().processOrder(withPaymentResult: url, standbyCallback: { (resultDic) in
-                    AlipayManager().payCallBackConfig(resultDic)
-                })
-                result = true
-            }
-        }
-        return result
-    }
-}

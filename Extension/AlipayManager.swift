@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import ThirdSDK
 
 public class AlipayManager:ThirdManager {
     fileprivate var payCallback:((Bool)->())?

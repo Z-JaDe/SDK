@@ -7,8 +7,8 @@
 //
 
 import Foundation
-
-public class QQManager:ThirdManager {
+import ThirdSDK
+public class QQManager:ThirdLoginManager {
     public static var shared:QQManager = QQManager()
     private override init() {
         super.init()

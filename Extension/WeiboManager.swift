@@ -8,8 +8,8 @@
 
 import UIKit
 import Extension
-
-public class WeiboManager: ThirdManager {
+import ThirdSDK
+public class WeiboManager:ThirdLoginManager {
     public static var shared:WeiboManager = WeiboManager()
     private override init(){}
     // MARK: - 登录

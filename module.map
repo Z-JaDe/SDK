@@ -4,6 +4,7 @@ module ThirdSDK [system] {
     header "./Wechat/WechatSDKHeaders.h"
     header "./WeiboSDK/WeiboSDKHeaders.h"
     header "./BaiduMapAPI/BaiduMapAPIHeaders.h"
-    
+    header "./Hyphenate/HyphenateHeaders.h"
+
     export *
 }

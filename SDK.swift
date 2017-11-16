@@ -8,6 +8,6 @@
 
 import Foundation
 
-@_exported import ThirdSDK
+//@_exported import ThirdSDK
 @_exported import AppInfoData
 @_exported import Alert

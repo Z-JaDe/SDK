@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import ThirdSDK
 import Extension
 import RxSwift
 
@@ -50,7 +50,7 @@ public extension BMKLocationManager {
         result.reverseGeoPoint = coordinate
         if searcher.reverseGeoCode(result) == false {
             self.reverseGeoCodeSubject.onError(NSError(domain: "反geo检索失败", code: -1, userInfo: nil))
-            logDebug("反geo检索发送失败")
+            logError("反geo检索发送失败")
         }
         self.searcherArr.append(searcher)
         return searcher
