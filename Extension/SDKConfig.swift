@@ -64,9 +64,7 @@ public class SDKConfig {
         return result
     }
     public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Async.userInitiated {
-            EMClient.shared().bindDeviceToken(deviceToken)
-        }
+        EaseMobManager.shared.registerForRemoteNotifications(with: deviceToken)
     }
     public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         logDebug("RegisterForRemoteNotificationsError->\(error)")

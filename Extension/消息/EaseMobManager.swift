@@ -31,8 +31,24 @@ public class EaseMobManager:ThirdManager {
 extension EaseMobManager {
     func login() {
         let username = UserInfo.shared.personModel.hxUser
-        let password = UserInfo.shared.personModel.hxCode
-        // TODO: 
+        let password = UserInfo.shared.personModel.hxCode.md5String
+        if EMClient.shared().isLoggedIn {
+            if EMClient.shared().currentUsername == username {
+                logDebug("已经登录")
+                return
+            }else {
+                self.logout()
+            }
+        }
+        Async.userInitiated {
+            let error = EMClient.shared().login(withUsername: username, password: password)
+            if let error = error {
+                logError("登录失败 --> code->\(error.code),errorDescription->\(error.errorDescription)")
+            }else {
+                logDebug("登录成功 --> username->\(username), password->\(password)")
+                NotificationCenter.default.post(name: .ChatLoginSuccessful, object: nil)
+            }
+        }
     }
     func logout() {
         Async.userInitiated {
@@ -42,6 +58,24 @@ extension EaseMobManager {
             }else {
                 logDebug("logout成功")
             }
+        }
+    }
+}
+extension EaseMobManager {
+    public func registerForRemoteNotifications(with deviceToken:Data) {
+        func register() {
+            EMClient.shared().bindDeviceToken(deviceToken)
+            logDebug(deviceToken)
+        }
+        if EMClient.shared().isLoggedIn {
+            register()
+        }else {
+            NotificationCenter.default.rx
+                .notification(.ChatLoginSuccessful)
+                .take(1)
+                .subscribe(onNext:{ (notification) in
+                    register()
+                }).disposed(by: self.disposeBag)
         }
     }
 }
