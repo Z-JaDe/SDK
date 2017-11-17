@@ -8,6 +8,7 @@
 
 import Foundation
 import ThirdSDK
+import EaseUI
 import Extension
 public class SDKConfig {
     public static let shared:SDKConfig = SDKConfig()
@@ -41,6 +42,7 @@ public class SDKConfig {
         EMClient.shared().add(EaseMobManager.shared, delegateQueue: nil)
         BadgeManager.shared.configObserver()
         EaseMobManager.shared.configObserver()
+        MessageManager.shared.configObserver()
     }
     public func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
         var result = false
