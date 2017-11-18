@@ -11,6 +11,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "EaseEmoji.h"
 
 @interface EaseEmojiEmoticons : NSObject

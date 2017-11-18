@@ -8,7 +8,6 @@
 
 import Foundation
 import ThirdSDK
-import EaseUI
 import Extension
 public class SDKConfig {
     public static let shared:SDKConfig = SDKConfig()

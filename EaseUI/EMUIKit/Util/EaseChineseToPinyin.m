@@ -5598,7 +5598,7 @@ NSString *FindLetter(int nCode)
 #define HANZI_START 19968
 #define HANZI_COUNT 20902
 
-static char firstLetterArray[HANZI_COUNT] = 
+static char firstLetterArray[HANZI_COUNT + 1] = 
 "ydkqsxnwzssxjbymgcczqpssqbycdscdqldylybssjgyqzjjfgcclzznwdwzjljpfyynnjjtmynzwzhflzppqhgccyynmjqyxxgd"
 "nnsnsjnjnsnnmlnrxyfsngnnnnqzggllyjlnyzssecykyyhqwjssggyxyqyjtwktjhychmnxjtlhjyqbyxdldwrrjnwysrldzjpc"
 "bzjjbrcfslnczstzfxxchtrqggddlyccssymmrjcyqzpwwjjyfcrwfdfzqpyddwyxkyjawjffxjbcftzyhhycyswccyxsclcxxwz"

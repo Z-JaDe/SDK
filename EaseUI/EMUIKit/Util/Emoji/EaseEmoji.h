@@ -11,6 +11,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #define MAKE_Q(x) @#x
 #define MAKE_EM(x,y) MAKE_Q(x##y)

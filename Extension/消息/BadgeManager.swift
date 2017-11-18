@@ -47,9 +47,9 @@ extension BadgeManager {
     }
 }
 extension BadgeManager {
-    public func formatBadge(_ badge:Int) -> String? {
-        if badge > 0 {
-            return badge > 99 ? "99+" : "\(badge)"
+    public func formatBadge(_ badge:Int?) -> String? {
+        if let badge = badge, badge > 0 {
+            return badge > 999 ? "999+" : "\(badge)"
         }
         return nil
     }
@@ -58,10 +58,10 @@ extension BadgeManager {
     }
 }
 extension DefaultsKeys {
-    public static let serverBadge = DefaultsKey<Int>("serverBadge")
+    static let serverBadge = DefaultsKey<Int>("serverBadge")
 }
 extension BadgeManager {
-    var serverBadge:Int {
+    public var serverBadge:Int {
         get {return Defaults[.serverBadge]}
         set {
             Defaults[.serverBadge] = newValue > 0 ? newValue : 0

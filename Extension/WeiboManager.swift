@@ -59,7 +59,7 @@ extension WeiboManager {
         webpage.objectID = "identifier1"
         webpage.title = shareModel.title
         webpage.description = shareModel.intro
-        webpage.thumbnailData = UIImage(named: "ic_thumbImage")?.data()
+        webpage.thumbnailData = UIImage(named: "ic_appIcon")?.data()
         webpage.webpageUrl = shareModel.url
         message.mediaObject = webpage
         

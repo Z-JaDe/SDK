@@ -11,6 +11,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "EMCDDeviceManagerDelegate.h"
 
 @interface EMCDDeviceManager : NSObject{

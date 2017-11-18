@@ -13,6 +13,7 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #if ENABLE_LITE == 1
 #import <HyphenateLite/HyphenateLite.h>

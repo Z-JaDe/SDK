@@ -113,7 +113,7 @@ extension EaseMobManager:EMClientDelegate {
     }
 }
 extension EaseMobManager {
-    public func removeEmptyConversationsFromDB() {
+    public func removeEmptyConversationsFromDB(_ closure:@escaping ()->()) {
         guard let conversations = EMClient.shared().chatManager.getAllConversations() as? [EMConversation] else {
             return
         }
@@ -125,16 +125,18 @@ extension EaseMobManager {
             if conversation.latestMessage == nil || conversation.type == EMConversationTypeChatRoom {
                 needRemoveConversations.append(conversation)
             }
-            guard needRemoveConversations.count > 0 else {
-                return
-            }
-            EMClient.shared().chatManager.deleteConversations(needRemoveConversations, isDeleteMessages: true, completion: { (error) in
-                if let error = error {
-                    logDebug("环信: 删除会话失败 code:\(error.code), errorDescription:\(error.errorDescription)")
-                }else {
-                    logDebug("环信: 删除会话成功")
-                }
-            })
         }
+        guard needRemoveConversations.count > 0 else {
+            closure()
+            return
+        }
+        EMClient.shared().chatManager.deleteConversations(needRemoveConversations, isDeleteMessages: true, completion: { (error) in
+            if let error = error {
+                logDebug("环信: 删除会话失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+            }else {
+                logDebug("环信: 删除会话成功")
+            }
+            closure()
+        })
     }
 }
