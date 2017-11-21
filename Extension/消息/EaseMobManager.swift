@@ -113,15 +113,23 @@ extension EaseMobManager:EMClientDelegate {
     }
 }
 extension EaseMobManager {
+    public func removeConversationFromDB(conversationId:String,_ closure:@escaping ()->()) {
+        EMClient.shared().chatManager.deleteConversation(conversationId, isDeleteMessages: true) { (conversationId, error) in
+            if let error = error {
+                logDebug("环信: 删除会话失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+            }else {
+                logDebug("环信: 删除会话成功")
+            }
+            closure()
+        }
+    }
     public func removeEmptyConversationsFromDB(_ closure:@escaping ()->()) {
         guard let conversations = EMClient.shared().chatManager.getAllConversations() as? [EMConversation] else {
+            closure()
             return
         }
         var needRemoveConversations:[EMConversation] = [EMConversation]()
         for conversation in conversations {
-            if conversation.conversationId == serverName {
-                continue
-            }
             if conversation.latestMessage == nil || conversation.type == EMConversationTypeChatRoom {
                 needRemoveConversations.append(conversation)
             }
@@ -132,9 +140,9 @@ extension EaseMobManager {
         }
         EMClient.shared().chatManager.deleteConversations(needRemoveConversations, isDeleteMessages: true, completion: { (error) in
             if let error = error {
-                logDebug("环信: 删除会话失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+                logDebug("环信: 删除会话数组失败 code:\(error.code), errorDescription:\(error.errorDescription)")
             }else {
-                logDebug("环信: 删除会话成功")
+                logDebug("环信: 删除会话数组成功")
             }
             closure()
         })

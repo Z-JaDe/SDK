@@ -51,6 +51,7 @@ extension MessageManager:EMGroupManagerDelegate {
 extension MessageManager:EMChatManagerDelegate {
     /// ZJaDe: 会话列表发生变化
     public func conversationListDidUpdate(_ aConversationList: [Any]!) {
+        logDebug("ConversationListDidUpdate -> \(aConversationList)")
         NotificationCenter.default.post(name: .ConversationListDidUpdate, object: nil)
     }
     /// ZJaDe: 收到消息
@@ -109,7 +110,7 @@ extension MessageManager {
     func messageHandle(_ message:EMMessage) {
         serverMessageHandle(message)
         /// ZJaDe: 处理未在聊天界面的消息
-        if message.conversationId == self.currentConversationId {
+        if message.conversationId != self.currentConversationId {
             BadgeManager.shared.vibrate()
             BadgeManager.shared.sendSetupUnreadMessageCountNotification()
         }

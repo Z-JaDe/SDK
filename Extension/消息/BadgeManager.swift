@@ -31,7 +31,7 @@ public class BadgeManager: ThirdManager {
         UIApplication.shared.applicationIconBadgeNumber = totalBadge
     }
     
-    func sendSetupUnreadMessageCountNotification() {
+    public func sendSetupUnreadMessageCountNotification() {
         NotificationCenter.default.post(name: .SetupUnreadMessageCount, object: nil)
     }
 }
