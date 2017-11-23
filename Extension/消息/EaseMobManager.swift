@@ -32,7 +32,7 @@ public class EaseMobManager:ThirdManager {
                 if let error = error {
                     logError("环信: bindDeviceToken失败 -> code:\(error.code),errorDescription:\(error.errorDescription)")
                 }else {
-                    logDebug("环信: bindDeviceToken成功")
+                    logInfo("环信: bindDeviceToken成功")
                 }
             }
         }
@@ -61,7 +61,7 @@ extension EaseMobManager {
             if let error = error {
                 logError("环信: 登录失败 -> code:\(error.code),errorDescription:\(error.errorDescription)")
             }else {
-                logDebug("环信: 登录成功 -> username:\(username), password:\(password)")
+                logInfo("环信: 登录成功 -> username:\(username), password:\(password)")
                 NotificationCenter.default.post(name: .ChatLoginSuccessful, object: nil)
             }
         }
@@ -87,7 +87,7 @@ extension EaseMobManager {
             if let error = error {
                 logError("环信: logout -> code:\(error.code),errorDescription:\(error.errorDescription)")
             }else {
-                logDebug("环信: logout成功")
+                logInfo("环信: logout成功")
             }
             closure(error == nil)
         }
@@ -116,9 +116,9 @@ extension EaseMobManager {
     public func removeConversationFromDB(conversationId:String,_ closure:@escaping ()->()) {
         EMClient.shared().chatManager.deleteConversation(conversationId, isDeleteMessages: true) { (conversationId, error) in
             if let error = error {
-                logDebug("环信: 删除会话失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+                logError("环信: 删除会话失败 code:\(error.code), errorDescription:\(error.errorDescription)")
             }else {
-                logDebug("环信: 删除会话成功")
+                logInfo("环信: 删除会话成功")
             }
             closure()
         }
@@ -140,9 +140,9 @@ extension EaseMobManager {
         }
         EMClient.shared().chatManager.deleteConversations(needRemoveConversations, isDeleteMessages: true, completion: { (error) in
             if let error = error {
-                logDebug("环信: 删除会话数组失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+                logError("环信: 删除会话数组失败 code:\(error.code), errorDescription:\(error.errorDescription)")
             }else {
-                logDebug("环信: 删除会话数组成功")
+                logInfo("环信: 删除会话数组成功")
             }
             closure()
         })
