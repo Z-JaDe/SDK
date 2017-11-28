@@ -32,6 +32,26 @@ public class MessageManager: ThirdManager {
         }).disposed(by: disposeBag)
     }
 }
+extension Observable where Element:EMMessage {
+    public func sendMessage() -> Observable<(EMMessage,EMError?)> {
+        return self.flatMap({ (message) -> Observable<(EMMessage,EMError?)> in
+            return Observable<(EMMessage,EMError?)>.create { (observer) -> Disposable in
+                EMClient.shared().chatManager.send(message, progress: nil, completion: { (message, error) in
+                    guard let message = message else {
+                        logError("环信: message应该为nil")
+                        return
+                    }
+                    if let error = error {
+                        HUD.showError(error.errorDescription)
+                        logError("环信: 信息发送失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+                    }
+                    observer.onNext((message,error))
+                })
+                return Disposables.create()
+            }
+        })
+    }
+}
 extension MessageManager {
     func registerNotifications() {
         unregisterNotifications()
