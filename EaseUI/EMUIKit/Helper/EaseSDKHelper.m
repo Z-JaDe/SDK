@@ -110,14 +110,14 @@ static EaseSDKHelper *helper = nil;
     }
     
 #if !TARGET_IPHONE_SIMULATOR
-    if ([application respondsToSelector:@selector(registerForRemoteNotifications)]) {
-        [application registerForRemoteNotifications];
-    }else{
-        UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeBadge |
-        UIRemoteNotificationTypeSound |
-        UIRemoteNotificationTypeAlert;
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
-    }
+    [application registerForRemoteNotifications];
+//    if ([application respondsToSelector:@selector(registerForRemoteNotifications)]) {
+//    }else{
+//        UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeBadge |
+//        UIRemoteNotificationTypeSound |
+//        UIRemoteNotificationTypeAlert;
+//        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
+//    }
 #endif
 }
 
