@@ -27,8 +27,9 @@ public class MessageManager: ThirdManager {
     var hxUserLoginTimestamp:TimeInterval?
     
     func configObserver() {
-        NotificationCenter.default.rx.notification(.ChatLoginSuccessful).subscribe(onNext:{[unowned self] (notification) in
-            self.hxUserLoginTimestamp = Date().timeIntervalSince1970 * 1000
+        EaseMobManager.shared.loginedObserver()
+            .subscribe(onNext:{[unowned self] (_) in
+                self.hxUserLoginTimestamp = Date().timeIntervalSince1970 * 1000
         }).disposed(by: disposeBag)
     }
 }

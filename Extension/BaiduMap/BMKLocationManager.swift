@@ -57,9 +57,7 @@ public extension BMKLocationManager {
     }
     public func endSearch(_ searcher:BMKGeoCodeSearch) {
         searcher.delegate = nil
-        if let index = self.searcherArr.index(of: searcher) {
-            self.searcherArr.remove(at: index)
-        }
+        self.searcherArr.remove(searcher)
     }
 }
 // MARK: - 反编码 坐标转地址 BMKGeoCodeSearchDelegate

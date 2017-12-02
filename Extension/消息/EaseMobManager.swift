@@ -13,7 +13,25 @@ import Extension
 import Hyphenate
 import AppInfoData
 
+public enum ChatState {
+    case offLine
+    case loginError
+    case logout
+    case connectionStateChanged(EMConnectionState)
+    case logined
+    
+    func isLogined() -> Bool {
+        switch self {
+        case .logined:
+            return true
+        default:
+            return false
+        }
+    }
+}
 public class EaseMobManager:ThirdManager {
+    public let chatState:PublishSubject<ChatState> = PublishSubject()
+    
     public static var shared:EaseMobManager = EaseMobManager()
     private override init() {
         super.init()
@@ -32,6 +50,7 @@ public class EaseMobManager:ThirdManager {
                 if let error = error {
                     logError("环信: bindDeviceToken失败 -> code:\(error.code),errorDescription:\(error.errorDescription)")
                 }else {
+                    self.chatState.onNext(.logined)
                     logInfo("环信: bindDeviceToken成功")
                 }
             }
@@ -39,21 +58,25 @@ public class EaseMobManager:ThirdManager {
     }
     // MARK: - 登录
     func configObserver() {
-        let login = NotificationCenter.default.rx.notification(.ReSetMyUserInfoComplete)
-        Observable.concat([login])
-            .subscribe(onNext:{[unowned self] (notification) in
-                self.login()
-            }).disposed(by: disposeBag)
-        
-        NotificationCenter.default.rx
-            .notification(.ChatLoginSuccessful)
-            .subscribe(onNext:{[unowned self] (notification) in
+        self.loginedObserver()
+            .subscribe(onNext:{[unowned self] (_) in
                 self.bindDeviceToken()
             }).disposed(by: self.disposeBag)
     }
 }
 extension EaseMobManager {
-    func login() {
+    public func loginedObserver() -> Observable<()> {
+        return self.chatState
+            .filter{$0.isLogined()}
+            .map{_ in ()}
+            .share()
+    }
+}
+extension EaseMobManager {
+    public var isLogined:Bool {
+        return EMClient.shared().isLoggedIn
+    }
+    public func login() {
         let username = UserInfo.shared.personModel.hxUser
         let password = UserInfo.shared.personModel.hxCode.md5String
         func EMLogin() {
@@ -62,11 +85,12 @@ extension EaseMobManager {
                 logError("环信: 登录失败 -> code:\(error.code),errorDescription:\(error.errorDescription)")
             }else {
                 logInfo("环信: 登录成功 -> username:\(username), password:\(password)")
-                NotificationCenter.default.post(name: .ChatLoginSuccessful, object: nil)
+                EMClient.shared().options.isAutoLogin = true
+                EMClient.shared().options.enableDeliveryAck = true
             }
         }
         
-        if EMClient.shared().isLoggedIn {
+        if isLogined {
             if EMClient.shared().currentUsername == username {
                 logDebug("环信: 已经登录 -> username:\(username)")
                 return
@@ -81,15 +105,16 @@ extension EaseMobManager {
             }
         }
     }
-    func logout(_ closure:@escaping (Bool)->()) {
+    public func logout(_ closure:((Bool)->())? = nil) {
         Async.userInitiated {
             let error = EMClient.shared().logout(true)
             if let error = error {
                 logError("环信: logout -> code:\(error.code),errorDescription:\(error.errorDescription)")
             }else {
+                self.chatState.onNext(.logout)
                 logInfo("环信: logout成功")
             }
-            closure(error == nil)
+            closure?(error == nil)
         }
     }
 }
@@ -101,15 +126,19 @@ extension EaseMobManager {
 extension EaseMobManager:EMClientDelegate {
     public func connectionStateDidChange(_ aConnectionState: EMConnectionState) {
         logDebug("环信: didConnectionStateChanged -> \(aConnectionState==EMConnectionConnected ? "已连接":"未连接")")
+        self.chatState.onNext(.connectionStateChanged(aConnectionState))
     }
     public func didAutoLoginWithError(_ aError: EMError!) {
         logError("环信: 自动登录失败 -> code:\(aError.code),errorDescription:\(aError.errorDescription)")
+        self.chatState.onNext(.loginError)
     }
     public func didLoginFromOtherDevice() {
         logError("环信: 当前登录帐号在其它设备登录")
+        self.chatState.onNext(.offLine)
     }
     public func didRemovedFromServer() {
         logError("环信: 当前登录帐号已经被从服务器端删除")
+        self.chatState.onNext(.offLine)
     }
 }
 extension EaseMobManager {
