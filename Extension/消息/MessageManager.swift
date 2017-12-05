@@ -66,7 +66,7 @@ extension MessageManager {
 }
 extension MessageManager:EMGroupManagerDelegate {
     public func groupListDidUpdate(_ aGroupList: [Any]!) {
-        NotificationCenter.default.post(name: .GroupListDidUpdate, object: nil)
+        NotificationCenter.default.post(name: .GroupsListDidUpdate, object: nil)
     }
 }
 extension MessageManager:EMChatManagerDelegate {

@@ -15,6 +15,7 @@ import AppInfoData
 
 public enum ChatState {
     case offLine
+    case autoLoginError
     case loginError
     case logout
     case connectionStateChanged(EMConnectionState)
@@ -50,7 +51,6 @@ public class EaseMobManager:ThirdManager {
                 if let error = error {
                     logError("环信: bindDeviceToken失败 -> code:\(error.code),errorDescription:\(error.errorDescription)")
                 }else {
-                    self.chatState.onNext(.logined)
                     logInfo("环信: bindDeviceToken成功")
                 }
             }
@@ -83,8 +83,10 @@ extension EaseMobManager {
             let error = EMClient.shared().login(withUsername: username, password: password)
             if let error = error {
                 logError("环信: 登录失败 -> code:\(error.code),errorDescription:\(error.errorDescription)")
+                self.chatState.onNext(.loginError)
             }else {
                 logInfo("环信: 登录成功 -> username:\(username), password:\(password)")
+                self.chatState.onNext(.logined)
                 EMClient.shared().options.isAutoLogin = true
                 EMClient.shared().options.enableDeliveryAck = true
             }
@@ -129,8 +131,8 @@ extension EaseMobManager:EMClientDelegate {
         self.chatState.onNext(.connectionStateChanged(aConnectionState))
     }
     public func didAutoLoginWithError(_ aError: EMError!) {
-        logError("环信: 自动登录失败 -> code:\(aError.code),errorDescription:\(aError.errorDescription)")
-        self.chatState.onNext(.loginError)
+        logError("环信: 自动登录失败 -> code:\(aError?.code ?? EMErrorGeneral)),errorDescription:\(aError?.errorDescription ?? "未知")")
+        self.chatState.onNext(.autoLoginError)
     }
     public func didLoginFromOtherDevice() {
         logError("环信: 当前登录帐号在其它设备登录")
