@@ -21,7 +21,7 @@ public class BadgeManager: ThirdManager {
     func configObserver() {
         let didEnterBack = NotificationCenter.default.rx.notification(.UIApplicationDidEnterBackground)
         let setupCount = NotificationCenter.default.rx.notification(.SetupUnreadMessageCount)
-        Observable.concat([didEnterBack,setupCount])
+        Observable.from([didEnterBack,setupCount])
             .subscribe(onNext:{[unowned self] (notification) in
                 self.updateAllBadge()
             }).disposed(by: disposeBag)

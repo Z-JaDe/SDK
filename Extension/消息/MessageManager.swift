@@ -11,8 +11,6 @@ import Hyphenate
 import RxCocoa
 import RxSwift
 public let serverName:String = "server"
-public let messagesKey:String = "messages"
-public let messageKey:String = "message"
 
 public class MessageManager: ThirdManager {
     public static var shared:MessageManager = MessageManager()
@@ -26,6 +24,12 @@ public class MessageManager: ThirdManager {
     public var currentConversationId:String?
     var hxUserLoginTimestamp:TimeInterval?
     
+    public let didSendMessages:PublishSubject<[EMMessage]> = PublishSubject()
+    
+    public let didReceiveSeverMessage:PublishSubject<EMMessage> = PublishSubject()
+    public let didReceiveCMDMessages:PublishSubject<[EMMessage]> = PublishSubject()
+    public let didReceiveMessages:PublishSubject<[EMMessage]> = PublishSubject()
+    
     func configObserver() {
         EaseMobManager.shared.loginedObserver()
             .subscribe(onNext:{[unowned self] (_) in
@@ -33,21 +37,24 @@ public class MessageManager: ThirdManager {
         }).disposed(by: disposeBag)
     }
 }
-extension Observable where Element:EMMessage {
-    public func sendMessage() -> Observable<(EMMessage,EMError?)> {
-        return self.flatMap({ (message) -> Observable<(EMMessage,EMError?)> in
+extension Observable where Element == [EMMessage] {
+    public func sendMessages() -> Observable<(EMMessage,EMError?)> {
+        return self.flatMap({ (messages) -> Observable<(EMMessage,EMError?)> in
             return Observable<(EMMessage,EMError?)>.create { (observer) -> Disposable in
-                EMClient.shared().chatManager.send(message, progress: nil, completion: { (message, error) in
-                    guard let message = message else {
-                        logError("环信: message应该为nil")
-                        return
-                    }
-                    if let error = error {
-                        HUD.showError(error.errorDescription)
-                        logError("环信: 信息发送失败 code:\(error.code), errorDescription:\(error.errorDescription)")
-                    }
-                    observer.onNext((message,error))
-                })
+                for message in messages {
+                    EMClient.shared().chatManager.send(message, progress: nil, completion: { (message, error) in
+                        guard let message = message else {
+                            logError("环信: message应该为nil")
+                            return
+                        }
+                        if let error = error {
+                            HUD.showError(error.errorDescription)
+                            logError("环信: 信息发送失败 code:\(error.code), errorDescription:\(error.errorDescription)")
+                        }
+                        observer.onNext((message,error))
+                    })
+                }
+                MessageManager.shared.didSendMessages.onNext(messages)
                 return Disposables.create()
             }
         })
@@ -75,13 +82,14 @@ extension MessageManager:EMChatManagerDelegate {
         logDebug("ConversationListDidUpdate -> \(aConversationList)")
         NotificationCenter.default.post(name: .ConversationListDidUpdate, object: nil)
     }
+    
     /// ZJaDe: 收到消息
     public func messagesDidReceive(_ aMessages: [Any]!) {
         logDebug("接收到\(aMessages.count)条消息")
         guard let messageArr = aMessages as? [EMMessage] else {
             return
         }
-        NotificationCenter.default.post(name: .DidReceiveMessages, object: nil, userInfo: [messagesKey:messageArr])
+        didReceiveMessages.onNext(messageArr)
         for message in messageArr {
             messageHandle(message)
         }
@@ -93,7 +101,7 @@ extension MessageManager:EMChatManagerDelegate {
         guard let messageArr = aCmdMessages as? [EMMessage] else {
             return
         }
-        NotificationCenter.default.post(name: .DidReceiveCMDMessages, object: nil, userInfo: [messagesKey:messageArr])
+        didReceiveCMDMessages.onNext(messageArr)
         logMessageArr(messageArr)
     }
     
@@ -140,7 +148,7 @@ extension MessageManager {
         guard message.from == serverName else {
             return
         }
-        NotificationCenter.default.post(name: .DidReceiveSeverMessages, object: nil, userInfo: [messageKey:message])
+        self.didReceiveSeverMessage.onNext(message)
         
         self.latestServerMessageTimestamp = TimeInterval(message.timestamp)
         /// ZJaDe: 有hxUserLoginTimestamp说明已经登录
