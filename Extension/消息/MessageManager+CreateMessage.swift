@@ -22,6 +22,9 @@ extension MessageManager {
     public func imageMessage(image:UIImage,to:String,type:ConversationType) -> EMMessage {
         return EaseSDKHelper.getImageMessage(with: image, to: to, messageType: type.EMChatType(), messageExt: userInfoExt())
     }
+    public func locationMessage(coordinate:CLLocationCoordinate2D,address:String,to:String,type:ConversationType) -> EMMessage {
+        return EaseSDKHelper.getLocationMessage(withLatitude: coordinate.latitude, longitude: coordinate.longitude, address: address, to: to, messageType: type.EMChatType(), messageExt: userInfoExt())
+    }
     func userInfoExt() -> [String:String] {
         return [messageNicknameKey:UserInfo.shared.personModel.nickname,
                 messageImgUrlKey:UserInfo.shared.personModel.uimg]
