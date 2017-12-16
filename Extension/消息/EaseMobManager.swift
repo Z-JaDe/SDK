@@ -87,7 +87,7 @@ extension EaseMobManager {
             }else {
                 logInfo("环信: 登录成功 -> username:\(username), password:\(password)")
                 self.chatState.onNext(.logined)
-                EMClient.shared().options.isAutoLogin = true
+//                EMClient.shared().options.isAutoLogin = true
                 EMClient.shared().options.enableDeliveryAck = true
             }
         }
