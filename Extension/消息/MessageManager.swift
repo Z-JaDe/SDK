@@ -101,6 +101,7 @@ extension MessageManager:EMChatManagerDelegate {
         guard let messageArr = aCmdMessages as? [EMMessage] else {
             return
         }
+        messageArr.forEach{$0.isRead = true}
         didReceiveCMDMessages.onNext(messageArr)
         logMessageArr(messageArr)
     }

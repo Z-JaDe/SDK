@@ -8,12 +8,12 @@
 
 import Foundation
 
-open class ShareModel {
-    open var title:String = ""
-    open var intro:String = ""
-    open var logo:String = ""
-    open var url:String = ""
-    open lazy var text:String = {
+public class ShareModel:Codable {
+    public var title:String = ""
+    public var intro:String = ""
+    public var logo:String = ""
+    public var url:String = ""
+    public lazy var text:String = {
         return "这个APP还不错你可以试试看，地址是\(self.url)\n\(self.intro)"
     }()
 }

@@ -8,55 +8,63 @@
 
 import Foundation
 import Extension
-
-class ShareManager {
-    var shareModel:ShareModel?
-    lazy var shareArray:[String] = {
-        var array = [String]()
+public enum ShareItem:String {
+    case QQ好友
+    case QQ空间
+    case 微信好友
+    case 微信朋友圈
+    case 新浪微博
+    case Email
+    case 短信
+    case 复制链接
+}
+public class ShareManager {
+    public init() {}
+    public var shareModel:ShareModel?
+    public lazy var shareArray:[(ShareItem,UIImage)] = {
+        var array = [ShareItem]()
         if QQManager.canUseQQShare() {
-            array.append("QQ好友")
-            array.append("QQ空间")
+            array.append(.QQ好友)
+            array.append(.QQ空间)
         }else if QQManager.canUseQzoneShare() {
-            array.append("QQ空间")
+            array.append(.QQ空间)
         }
         if WechatManager.canUseWeChat() {
-            array.append("微信好友")
-            array.append("微信朋友圈")
+            array.append(.微信好友)
+            array.append(.微信朋友圈)
         }
         if WeiboManager.canUseWeiboShare() {
-            array.append("新浪微博")
+            array.append(.新浪微博)
         }
         if MessageUIManager.canUseEmail() {
-            array.append("Email")
+            array.append(.Email)
         }
         if MessageUIManager.canUseMessage() {
-            array.append("短信")
+            array.append(.短信)
         }
-        array.append("复制链接")
-        return array
+        array.append(.复制链接)
+        return array.map{($0,UIImage(named: "ShareImage.bundle/\($0.rawValue)", in: Bundle(for: type(of: self)), compatibleWith: nil)!)}
     }()
 }
 extension ShareManager {
-    func share(_ title:String) {
-        switch title {
-        case "QQ好友":
+    public func share(_ item:ShareItem) {
+        switch item {
+        case .QQ好友:
             self.shareToQQ()
-        case "QQ空间":
+        case .QQ空间:
             self.shareToQzone()
-        case "微信好友":
+        case .微信好友:
             self.shareToWeChat()
-        case "微信朋友圈":
+        case .微信朋友圈:
             self.shareToWeChatTimeline()
-        case "新浪微博":
+        case .新浪微博:
             self.shareToWeibo()
-        case "Email":
+        case .Email:
             self.shareToEmail()
-        case "短信":
+        case .短信:
             self.shareToMessage()
-        case "复制链接":
+        case .复制链接:
             self.shareToPasteboard()
-        default:
-            break
         }
     }
     
