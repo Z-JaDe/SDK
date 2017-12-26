@@ -26,7 +26,7 @@ extension MessageManager {
         return EaseSDKHelper.getLocationMessage(withLatitude: coordinate.latitude, longitude: coordinate.longitude, address: address, to: to, messageType: type.EMChatType(), messageExt: userInfoExt())
     }
     func userInfoExt() -> [String:String] {
-        return [messageNicknameKey:UserInfo.shared.personModel.nickname,
-                messageImgUrlKey:UserInfo.shared.personModel.uimg]
+        return [messageNicknameKey:UserInfo.shared.personModel.userInfo.nickname,
+                messageImgUrlKey:UserInfo.shared.personModel.userInfo.uimg]
     }
 }
