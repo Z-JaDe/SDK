@@ -8,7 +8,7 @@
 
 import Foundation
 import Extension
-public enum ShareItem:String {
+public enum ShareItem:String,Equatable {
     case QQ好友
     case QQ空间
     case 微信好友
@@ -17,11 +17,15 @@ public enum ShareItem:String {
     case Email
     case 短信
     case 复制链接
+    
+    public func image() -> UIImage {
+        return UIImage(named: "ShareImage.bundle/\(self.rawValue)", in: Bundle(for: ShareManager.self), compatibleWith: nil)!
+    }
 }
 public class ShareManager {
     public init() {}
     public var shareModel:ShareModel?
-    public lazy var shareArray:[(ShareItem,UIImage)] = {
+    public lazy var shareArray:[ShareItem] = {
         var array = [ShareItem]()
         if QQManager.canUseQQShare() {
             array.append(.QQ好友)
@@ -43,7 +47,7 @@ public class ShareManager {
             array.append(.短信)
         }
         array.append(.复制链接)
-        return array.map{($0,UIImage(named: "ShareImage.bundle/\($0.rawValue)", in: Bundle(for: type(of: self)), compatibleWith: nil)!)}
+        return array
     }()
 }
 extension ShareManager {
