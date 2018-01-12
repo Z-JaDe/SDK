@@ -12,7 +12,7 @@ import Alamofire
 import ThirdSDK
 private var weChatPayKey:UInt8 = 0
 
-open class WechatPayReqModel {
+open class WechatPayReqModel:Codable {
     public var appid:String?
     public var partnerid:String?
     public var prepayid:String?
