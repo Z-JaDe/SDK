@@ -84,7 +84,7 @@ extension WechatManager {
     func getMessageToWXReq(_ shareModel:ShareModel) -> SendMessageToWXReq {
         let message = WXMediaMessage();
         message.title = shareModel.title;
-        message.description = shareModel.intro;
+        message.description = shareModel.contents;
         message.setThumbImage(UIImage(named: "ic_appIcon"))
         
         let webpageObject = WXWebpageObject()

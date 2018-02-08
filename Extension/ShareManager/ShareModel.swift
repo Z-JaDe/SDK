@@ -10,10 +10,10 @@ import Foundation
 
 public class ShareModel:Codable {
     public var title:String = ""
-    public var intro:String = ""
+    public var contents:String = ""
     public var logo:String = ""
     public var url:String = ""
     public lazy var text:String = {
-        return "这个APP还不错你可以试试看，地址是\(self.url)\n\(self.intro)"
+        return "这个APP还不错你可以试试看，地址是\(self.url)\n\(self.contents)"
     }()
 }

@@ -79,7 +79,7 @@ extension QQManager {
 }
 extension QQManager {
     func getMessageToQQReq(_ shareModel:ShareModel) -> SendMessageToQQReq {
-        let newsObj:QQApiNewsObject = QQApiNewsObject.object(with: URL(string: shareModel.url), title: shareModel.title, description: shareModel.intro, previewImageURL: URL(string: shareModel.logo)) as! QQApiNewsObject
+        let newsObj:QQApiNewsObject = QQApiNewsObject.object(with: URL(string: shareModel.url), title: shareModel.title, description: shareModel.contents, previewImageURL: URL(string: shareModel.logo)) as! QQApiNewsObject
         return SendMessageToQQReq(content: newsObj)
     }
     func handleSendResult(sendResult:QQApiSendResultCode) {
