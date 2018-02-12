@@ -68,7 +68,7 @@ extension BadgeManager {
             sendSetupUnreadMessageCountNotification()
         }
     }
-    func resetServerBadge(_ badge:Int) {
+    public func resetServerBadge(_ badge:Int = 0) {
         if badge > self.serverBadge {
             self.remindAndVibrate()
         }
@@ -89,10 +89,9 @@ extension BadgeManager {
             return total
         }
         for conversation in conversations {
-            if conversation.conversationId == serverName {
-                continue
+            if MessageFromType(conversation.conversationId) == .common {
+                total += Int(conversation.unreadMessagesCount)
             }
-            total += Int(conversation.unreadMessagesCount)
         }
         return total
     }

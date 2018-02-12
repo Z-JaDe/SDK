@@ -10,7 +10,17 @@ import UIKit
 import Hyphenate
 import RxCocoa
 import RxSwift
-public let serverName:String = "server"
+public enum MessageFromType:String {
+    case common
+    case server = "server"
+    public init(_ from:String) {
+        if let type = MessageFromType(rawValue:from) {
+            self = type
+        }else {
+            self = .common
+        }
+    }
+}
 
 public class MessageManager: ThirdManager {
     public static var shared:MessageManager = MessageManager()
@@ -128,17 +138,15 @@ extension MessageManager:EMChatManagerDelegate {
         #endif
     }
 }
-extension DefaultsKeys {
-    static let latestServerMessageTimestamp = DefaultsKey<TimeInterval>("latestServerMessageTimestamp")
-}
 extension MessageManager {
-    public var latestServerMessageTimestamp:TimeInterval {
-        get {return Defaults[.latestServerMessageTimestamp]}
-        set {Defaults[.latestServerMessageTimestamp] = newValue}
-    }
     
     func messageHandle(_ message:EMMessage) {
-        serverMessageHandle(message)
+        switch MessageFromType(message.from) {
+        case .common:
+            break
+        case .server:
+            serverMessageHandle(message)
+        }
         /// ZJaDe: 处理未在聊天界面的消息
         if message.conversationId != self.currentConversationId {
             BadgeManager.shared.vibrate()
@@ -146,17 +154,14 @@ extension MessageManager {
         }
     }
     func serverMessageHandle(_ message:EMMessage) {
-        guard message.from == serverName else {
-            return
-        }
         self.didReceiveSeverMessage.onNext(message)
         
-        self.latestServerMessageTimestamp = TimeInterval(message.timestamp)
+        let serverMessageTimestamp = TimeInterval(message.timestamp)
         /// ZJaDe: 有hxUserLoginTimestamp说明已经登录
-        if let hxUserLoginTimestamp = self.hxUserLoginTimestamp,self.latestServerMessageTimestamp > hxUserLoginTimestamp {
+        if let hxUserLoginTimestamp = self.hxUserLoginTimestamp,serverMessageTimestamp > hxUserLoginTimestamp {
             BadgeManager.shared.increaseServerBadge()
         }else {
-            logError("hxUserLoginTimestamp:\(hxUserLoginTimestamp ?? -1),latestMessageTimestamp:\(latestServerMessageTimestamp)")
+            logError("hxUserLoginTimestamp:\(hxUserLoginTimestamp ?? -1),serverMessageTimestamp:\(serverMessageTimestamp)")
         }
     }
 }
