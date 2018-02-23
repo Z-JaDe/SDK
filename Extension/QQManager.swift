@@ -70,7 +70,7 @@ extension QQManager {
     static func canUseQQShare() -> Bool {
         return TencentOAuth.iphoneQQInstalled()
     }
-    static func canUseQQLogin() -> Bool {
+    public static func canUseQQLogin() -> Bool {
         return TencentOAuth.iphoneQQSupportSSOLogin()
     }
     static func canUseQzoneShare() -> Bool {

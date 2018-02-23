@@ -13,4 +13,6 @@
 #import "EaseConvertToCommonEmoticonsHelper.h"
 #import "EaseEmotionManager.h"
 #import "EaseEmotionEscape.h"
+
+#import "EaseFaceView.h"
 #endif /* EaseUIHeaders_h */
