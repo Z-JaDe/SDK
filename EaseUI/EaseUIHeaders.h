@@ -15,4 +15,5 @@
 #import "EaseEmotionEscape.h"
 
 #import "EaseFaceView.h"
+#import "EaseEmoji.h"
 #endif /* EaseUIHeaders_h */

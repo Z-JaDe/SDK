@@ -16,8 +16,13 @@ extension MessageManager {
     public var messageImgUrlKey:String {
         return "imageUrl"
     }
-    public func textMessage(text:String,to:String,type:ConversationType) -> EMMessage {
-        return EaseSDKHelper.getTextMessage(text, to: to, messageType: type.EMChatType(), messageExt: userInfoExt())
+    public typealias MessageExtType = [String:Any]
+    public func textMessage(text:String,to:String,type:ConversationType,messageExt:MessageExtType = MessageExtType()) -> EMMessage {
+        var messageExt = messageExt
+        userInfoExt().forEach { (key,value) in
+            messageExt[key] = value
+        }
+        return EaseSDKHelper.getTextMessage(text, to: to, messageType: type.EMChatType(), messageExt: messageExt)
     }
     public func imageMessage(image:UIImage,to:String,type:ConversationType) -> EMMessage {
         return EaseSDKHelper.getImageMessage(with: image, to: to, messageType: type.EMChatType(), messageExt: userInfoExt())
@@ -25,7 +30,7 @@ extension MessageManager {
     public func locationMessage(coordinate:CLLocationCoordinate2D,address:String,to:String,type:ConversationType) -> EMMessage {
         return EaseSDKHelper.getLocationMessage(withLatitude: coordinate.latitude, longitude: coordinate.longitude, address: address, to: to, messageType: type.EMChatType(), messageExt: userInfoExt())
     }
-    func userInfoExt() -> [String:String] {
+    func userInfoExt() -> MessageExtType {
         return [messageNicknameKey:UserInfo.shared.personModel.userInfo.nickname,
                 messageImgUrlKey:UserInfo.shared.personModel.userInfo.uimg]
     }
