@@ -86,7 +86,8 @@
     _emotion = emotion;
     if ([emotion isKindOfClass:[EaseEmotion class]]) {
         if (emotion.emotionType == EMEmotionGif) {
-            [_imageButton setImage:[UIImage imageNamed:emotion.emotionThumbnail] withTitle:emotion.emotionTitle forState:UIControlStateNormal];
+            NSString* name = [NSString stringWithFormat:@"EaseUIResource.bundle/emotion/%@",emotion.emotionThumbnail];
+            [_imageButton setImage:[UIImage imageNamed:name] withTitle:emotion.emotionTitle forState:UIControlStateNormal];
         } else if (emotion.emotionType == EMEmotionPng) {
             [_imageButton setImage:[UIImage imageNamed:emotion.emotionThumbnail] forState:UIControlStateNormal];
             _imageButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
