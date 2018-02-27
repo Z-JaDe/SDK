@@ -60,6 +60,27 @@ public class MapView: BMKMapView,InitMethodProtocol {
     public func setRegion(with coordinate:CLLocationCoordinate2D) {
         self.setRegion(BMKCoordinateRegionMake(coordinate, BMKCoordinateSpanMake(0.001625, 0.004705)), animated: true)
     }
+    // MARK: -
+    public var annotationModelArr:[AnnotationModel] = [] {
+        didSet {
+            /// ZJaDe: 把旧的Annotation移除
+            self.removeAnnotations(self.annotations.filter({ (annotation) -> Bool in
+                guard let annotation = annotation as? AnnotationModel else {
+                    return false
+                }
+                return !self.annotationModelArr.contains(annotation)
+            }))
+            /// ZJaDe: 只添加没添加过的Annotation
+            self.addAnnotations(self.annotationModelArr.filter({ (annotation) -> Bool in
+                return !self.annotations.contains(where: { (item) -> Bool in
+                    guard let item = item as? AnnotationModel else {
+                        return false
+                    }
+                    return item == annotation
+                })
+            }))
+        }
+    }
 }
 
 extension MapView:BMKMapViewDelegate {
@@ -68,6 +89,12 @@ extension MapView:BMKMapViewDelegate {
     }
     public func mapView(_ mapView: BMKMapView!, regionDidChangeAnimated animated: Bool) {
         self.regionDidChange.onNext(())
+    }
+    public func mapView(_ mapView: BMKMapView!, viewFor annotation: BMKAnnotation!) -> BMKAnnotationView! {
+        guard let annotation = annotation as? AnnotationModel else {
+            return nil
+        }
+        return annotation.createView()
     }
 }
 extension MapView:BMKPoiSearchDelegate {
