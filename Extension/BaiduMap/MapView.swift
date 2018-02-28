@@ -58,7 +58,8 @@ public class MapView: BMKMapView,InitMethodProtocol {
     public lazy var poiSearchSubject:PublishSubject<[BMKPoiInfo]> = PublishSubject()
     // MARK: -
     public func setRegion(with coordinate:CLLocationCoordinate2D) {
-        self.setRegion(BMKCoordinateRegionMake(coordinate, BMKCoordinateSpanMake(0.001625, 0.004705)), animated: true)
+        let region = BMKCoordinateRegionMake(coordinate, BMKCoordinateSpanMake(0.001625, 0.004705))
+        self.setRegion(self.regionThatFits(region), animated: true)
     }
     // MARK: -
     public var annotationModelArr:[AnnotationModel] = [] {

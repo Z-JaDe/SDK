@@ -8,7 +8,6 @@
 
 import UIKit
 import ThirdSDK
-import JDKit
 open class AnnotationModel: BMKPointAnnotation {
     open func createView() -> AnnotationView {
         jdAbstractMethod()
