@@ -130,6 +130,7 @@ extension WechatManager {
             Defaults[.wx_access_token] = dict[access_token_key] as? String ?? ""
             Defaults[.wx_refresh_token] = dict[refresh_token_key] as? String ?? ""
             Defaults[.wx_openId] = dict[openId_key] as? String ?? ""
+            Defaults[.wx_unionId] = dict[unionId_key] as? String ?? ""
             self.request()
         }
     }
