@@ -23,12 +23,15 @@ public class SDKConfig {
         if !WechatAppid.isEmpty {
             WXApi.registerApp(WechatAppid)
         }
-        #if DEBUG
-            WeiboSDK.enableDebugMode(true)
-        #endif
-        if !WeiboAppKey.isEmpty {
-            WeiboSDK.registerApp(WeiboAppKey)
-        }
+        // TODO: 微博先不用
+//        Async.main {
+//            #if DEBUG
+//                WeiboSDK.enableDebugMode(true)
+//            #endif
+//            if !WeiboAppKey.isEmpty {
+//                WeiboSDK.registerApp(WeiboAppKey)
+//            }
+//        }
         // MARK: - 环信
         #if DEBUG
             let apnsCertName = EaseMobAPNsDevelopment

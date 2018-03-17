@@ -13,7 +13,7 @@ public enum ShareItem:String,Equatable {
     case QQ空间
     case 微信好友
     case 微信朋友圈
-    case 新浪微博
+//    case 新浪微博
     case Email
     case 短信
     case 复制链接
@@ -37,9 +37,9 @@ public class ShareManager {
             array.append(.微信好友)
             array.append(.微信朋友圈)
         }
-        if WeiboManager.canUseWeiboShare() {
-            array.append(.新浪微博)
-        }
+//        if WeiboManager.canUseWeiboShare() {
+//            array.append(.新浪微博)
+//        }
         if MessageUIManager.canUseEmail() {
             array.append(.Email)
         }
@@ -61,8 +61,8 @@ extension ShareManager {
             self.shareToWeChat()
         case .微信朋友圈:
             self.shareToWeChatTimeline()
-        case .新浪微博:
-            self.shareToWeibo()
+//        case .新浪微博:
+//            self.shareToWeibo()
         case .Email:
             self.shareToEmail()
         case .短信:
