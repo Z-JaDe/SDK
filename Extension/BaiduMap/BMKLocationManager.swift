@@ -16,14 +16,14 @@ public class BMKLocationManager:NSObject {
     private override init() {
         super.init()
     }
-    fileprivate var observeObjectCount:Int = 0
+    private var observeObjectCount:Int = 0
     // MARK: 反编码 坐标转地址
     var searcherArr:[BMKGeoCodeSearch] = [BMKGeoCodeSearch]()
-    fileprivate lazy var reverseGeoCodeSubject = PublishSubject<(BMKGeoCodeSearch,AddressComponentModel)>()
+    private lazy var reverseGeoCodeSubject = PublishSubject<(BMKGeoCodeSearch,AddressComponentModel)>()
     // MARK: 定位
     lazy var locationService = BMKLocationService()
-    fileprivate lazy var locationSubject = ReplaySubject<BMKUserLocation>.create(bufferSize: 1)
-    
+    private lazy var locationSubject = ReplaySubject<BMKUserLocation>.create(bufferSize: 1)
+    private var isCheckCanLocation:Bool = false
 }
 // MARK: - 反编码 坐标转地址
 public extension BMKLocationManager {
@@ -43,7 +43,7 @@ public extension BMKLocationManager {
             self.endSearch(searcher)
         })
     }
-    fileprivate func beginSearch(_ coordinate:CLLocationCoordinate2D) -> BMKGeoCodeSearch {
+    private func beginSearch(_ coordinate:CLLocationCoordinate2D) -> BMKGeoCodeSearch {
         let searcher = BMKGeoCodeSearch()
         searcher.delegate = self
         let result = BMKReverseGeoCodeOption()
@@ -93,11 +93,19 @@ extension BMKLocationManager {
     }
     // MARK: 开启定位同时验证
     public func beginLocation() -> Observable<BMKUserLocation> {
-        self.checkCanLocation {
-            self.startUserLocationService()
-        }
-        return self.locationSubject.retry(3).do(onDispose: {
-            self.endLocation()
+        let observable = Observable<()>.create {[unowned self] (observer) in
+            self.checkCanLocation { (canLocation) in
+                if canLocation {
+                    self.startUserLocationService()
+                    observer.onNext(())
+                }else {
+                    observer.onError(NSError())
+                }
+            }
+            return Disposables.create()
+        }.flatMap{self.locationSubject.retry(3)}
+        return endLocationWhenDispose(observable).do(onError: { (error) in
+            HUD.showError("定位出现错误")
         })
     }
     // MARK: 只请求定位，不提示错误
@@ -106,15 +114,21 @@ extension BMKLocationManager {
     }
     public func onlyLocation() -> Observable<BMKUserLocation> {
         self.startUserLocationService()
-        return self.locationSubject.retry(3).do(onDispose: {
-            self.endLocation()
-        })
+        return endLocationWhenDispose(self.locationSubject.retry(3))
     }
     // MARK: 停止定位
     public func endLocation() {
         self.stopUserLocationService()
     }
-    // MARK: -
+}
+extension BMKLocationManager {
+    private func endLocationWhenDispose(_ observable:Observable<BMKUserLocation>) -> Observable<BMKUserLocation> {
+        return observable.do(onDispose: { [unowned self] in
+            self.endLocation()
+        })
+    }
+}
+extension BMKLocationManager {
     private func startUserLocationService() {
         self.observeObjectCount += 1
         if self.locationService.delegate == nil {
@@ -132,17 +146,24 @@ extension BMKLocationManager {
         }
         
     }
-    fileprivate func checkCanLocation(_ closure:@escaping ()->()) {
+    private func checkCanLocation(_ closure:@escaping (Bool)->()) {
+        guard self.isCheckCanLocation == false else {
+            return
+        }
+        self.isCheckCanLocation = true
         let pscope = PermissionScope()
         pscope.addPermission(LocationWhileInUsePermission(), message: "如果拒绝将无法使用定位功能")
         pscope.bodyLabel.text = "在您定位之前，app需要获取\r\niPhone的定位权限"
         pscope.show({ (finished, results) in
-            closure()
+            self.isCheckCanLocation = false
+            closure(true)
         }, cancelled: {(results) in
+            self.isCheckCanLocation = false
+            closure(false)
         })
     }
     // MARK: 更新定位
-    fileprivate func updateLocation(_ userLocation:BMKUserLocation) {
+    private func updateLocation(_ userLocation:BMKUserLocation) {
         if userLocation.location != nil {
             self.locationSubject.onNext(userLocation)
         }
@@ -164,7 +185,6 @@ extension BMKLocationManager:BMKLocationServiceDelegate {
         updateLocation(userLocation)
     }
     public func didFailToLocateUserWithError(_ error: Error!) {
-        HUD.showError("定位出现位置错误")
         self.locationSubject.onError(error)
     }
 }
