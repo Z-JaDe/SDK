@@ -9,6 +9,7 @@
 import Foundation
 
 public class ShareModel:Codable {
+    public var shareId:String!
     public var title:String = ""
     public var contents:String = ""
     public var logo:String = ""

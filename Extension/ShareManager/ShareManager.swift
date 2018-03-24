@@ -9,6 +9,8 @@
 import Foundation
 import Extension
 public enum ShareItem:String,Equatable {
+    case 好友
+    case 群
     case QQ好友
     case QQ空间
     case 微信好友
@@ -25,8 +27,12 @@ public enum ShareItem:String,Equatable {
 public class ShareManager {
     public init() {}
     public var shareModel:ShareModel?
+    public var shareToFriendClosure:((ShareManager)->())?
+    public var shareToGroupClosure:((ShareManager)->())?
     public lazy var shareArray:[ShareItem] = {
         var array = [ShareItem]()
+        array.append(.好友)
+        array.append(.群)
         if QQManager.canUseQQShare() {
             array.append(.QQ好友)
             array.append(.QQ空间)
@@ -53,6 +59,10 @@ public class ShareManager {
 extension ShareManager {
     public func share(_ item:ShareItem) {
         switch item {
+        case .好友:
+            self.shareToFriendClosure?(self)
+        case .群:
+            self.shareToGroupClosure?(self)
         case .QQ好友:
             self.shareToQQ()
         case .QQ空间:
